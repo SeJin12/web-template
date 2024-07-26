@@ -1,12 +1,12 @@
-import { blue, indigo } from '@mui/material/colors';
+import { blue, indigo, pink } from '@mui/material/colors';
 import { createTheme } from '@mui/material/styles';
 
 const lightTheme = createTheme({
     palette: {
         mode: 'light',
         primary: {
-            main: blue[500],
-            contrastText: '#000000',
+            main: blue[400],
+            contrastText: '#F6F6F6',
             "100":'#E8EAF6',
         },
         secondary: {
@@ -21,7 +21,7 @@ const lightTheme = createTheme({
         },
         text: {
             primary: '#000000',
-            secondary: '#BDBDBD'
+            secondary: '#5D5D5D'
         },
     },
     typography: {
@@ -37,7 +37,7 @@ const lightTheme = createTheme({
             fontWeight: 'bold'
         },
         h4: {
-            fontSize: '1rem',
+            fontSize: '0.9rem',
             // fontWeight: 'bold'
         },
         h5: {

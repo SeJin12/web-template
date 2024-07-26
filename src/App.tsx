@@ -28,7 +28,7 @@ import { SnackbarUtilsConfigurator } from "./components/CustomToast";
 function App() {
   const [mode, setMode] = useState<PaletteMode>("light");
   const theme = useTheme();
-  const drawerWidth = 200;
+  const drawerWidth = 250;
   const { id } = useSelector((state: RootState) => state.userReducer);
   const isAuthorized = id !== "";
 

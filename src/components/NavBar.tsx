@@ -22,6 +22,7 @@ import { RootState } from "../store/reducer";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../store";
 import userSlice from "../slices/user";
+import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 
 interface Props {
   drawerWidth: number;
@@ -34,9 +35,9 @@ type MenuType = {
 };
 
 const MenuList: MenuType[] = [
-  { title: "홈", link: "/", image: "Dashboard" },
+  { title: "Dashboard", link: "/", image: "Dashboard" },
   { title: "SuB", link: "/sub", image: "Mail" },
-  { title: "LIST", link: "/list", image: "List" },
+  { title: "List", link: "/list", image: "List" },
 ];
 
 const getMenuImage = (menu: MenuType) => {
@@ -45,7 +46,7 @@ const getMenuImage = (menu: MenuType) => {
   } else if (menu.image === "Mail") {
     return <AccessTimeIcon />;
   } else if (menu.image === "List") {
-    return <ListIcon />;
+    return <ListAltOutlinedIcon />;
   }
   return <></>;
 };
@@ -86,29 +87,21 @@ const NavBar = ({ drawerWidth }: Props) => {
         },
       }}
     >
-      <Box
-        sx={{
-          overflow: "auto",
-          // backgroundColor: theme.palette.background.default,
-        }}
-      >
+      <Box>
         <Stack
-          // variant="outlined"
           sx={{
             p: 2,
+            borderWidth: 1,
+            borderStyle: "solid",
+            borderColor: theme.palette.secondary.dark,
+            borderRadius: 3,
           }}
           gap={2}
         >
           <Stack flexDirection={"row"} justifyContent={"space-evenly"} gap={1}>
-            <Box
-              sx={
-                {
-                  // backgroundColor: "red",
-                }
-              }
-            >
+            <Box>
               <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
-                {id.substring(0, 2)}
+                {id.substring(0, 2).toUpperCase()}
               </Avatar>
             </Box>
             <Box alignContent={"center"} sx={{}}>
@@ -138,18 +131,35 @@ const NavBar = ({ drawerWidth }: Props) => {
               <ListItemButton
                 onClick={() => onClickMenu(item.link)}
                 sx={{
-                  backgroundColor:
-                    location.pathname === item.link
-                      ? theme.palette.primary.main
-                      : theme.palette.background.paper,
+                  // backgroundColor:
+                  //   location.pathname === item.link
+                  //     ? theme.palette.primary.main
+                  //     : theme.palette.background.paper,
                   borderTopRightRadius: 10,
                   borderBottomRightRadius: 10,
                   // marginTop:1,
                   marginBottom: 1,
                 }}
               >
-                <ListItemIcon>{getMenuImage(item)}</ListItemIcon>
-                <ListItemText primary={item.title} />
+                <ListItemIcon
+                  sx={{
+                    color:
+                      location.pathname === item.link
+                        ? theme.palette.primary.main
+                        : theme.palette.text.secondary,
+                  }}
+                >
+                  {getMenuImage(item)}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.title}
+                  sx={{
+                    color:
+                      location.pathname === item.link
+                        ? theme.palette.primary.main
+                        : theme.palette.text.secondary,
+                  }}
+                />
               </ListItemButton>
             </ListItem>
           ))}

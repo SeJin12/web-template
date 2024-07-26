@@ -1,14 +1,7 @@
 import {
-  Box,
-  Button,
-  Paper,
   Stack,
-  TextField,
-  Typography,
-  useTheme,
+  useTheme
 } from "@mui/material";
-import bg from "../assets/main.jpg";
-import VpnKeyIcon from "@mui/icons-material/VpnKey";
 
 const SubScreen = () => {
   const theme = useTheme();

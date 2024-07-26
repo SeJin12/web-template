@@ -17,7 +17,9 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 const store = configureStore({
     reducer: persistedReducer,
     middleware: getDefaultMiddleware => {
-        return getDefaultMiddleware();
+        return getDefaultMiddleware({
+            serializableCheck: false // 알아보기
+        });
     }
 });
 

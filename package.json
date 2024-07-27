@@ -6,8 +6,11 @@
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^5.16.4",
-    "@mui/material": "^5.16.4",
+    "@mui/material": "^5.16.5",
+    "@mui/styled-engine-sc": "^6.0.0-alpha.18",
+    "@mui/x-charts": "^7.11.1",
     "@mui/x-data-grid": "^7.11.0",
+    "@mui/x-date-pickers": "^7.11.1",
     "@reduxjs/toolkit": "^2.2.6",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -19,6 +22,7 @@
     "@types/react-dom": "^18.3.0",
     "@types/redux-persist": "^4.3.1",
     "axios": "^1.7.2",
+    "dayjs": "^1.11.12",
     "notistack": "^3.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -27,8 +31,10 @@
     "react-scripts": "5.0.1",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
+    "styled-components": "^6.1.12",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",

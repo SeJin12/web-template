@@ -27,6 +27,10 @@ import axiosInstance from "../config/api";
 import { OrderResponse, OrderResponseType } from "../types/OrderResponseType";
 import { downloadFile } from "../utils/fileUtil";
 import { formatDate, getStateName } from "../utils/StringUtil";
+import {
+  MarketResponse,
+  MarketResponseType,
+} from "../types/MarketResponseType";
 
 interface AutoCompleteType {
   label: string;
@@ -47,7 +51,7 @@ const states: AutoCompleteType[] = [
   { label: "주문 취소", value: "cancel" },
 ];
 
-const ListScreen = () => {
+const MarketScreen = () => {
   const theme = useTheme();
 
   /**
@@ -60,7 +64,7 @@ const ListScreen = () => {
   });
 
   const [state, setState] = useState<{
-    rows: OrderResponseType[];
+    rows: MarketResponseType[];
     total: number;
   }>({
     rows: [],
@@ -137,15 +141,14 @@ const ListScreen = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post("/order/history/user", {
+      const response = await axiosInstance.post("/market/user", {
         page: paginationModel.page + 1,
         pageSize: paginationModel.pageSize,
         search: word,
-        side: side === null ? "" : side.value,
-        state: orderState === null ? "all" : orderState.value,
       });
+      console.log(response.data);
 
-      const data: OrderResponse = response.data;
+      const data: MarketResponse = response.data;
       setState({
         rows: data.result,
         total: data.CNT,
@@ -166,7 +169,7 @@ const ListScreen = () => {
    */
   const columns: GridColDef<(typeof state.rows)[number]>[] = [
     {
-      field: "korean_name",
+      field: "market",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
           Market
@@ -176,48 +179,51 @@ const ListScreen = () => {
       editable: true,
     },
     {
-      field: "side",
+      field: "korean_name",
+      width: 150,
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
-          주문 종류
+          한글명
         </strong>
       ),
+    },
+
+    {
+      field: "english_name",
+      renderHeader: () => (
+        <strong style={{ color: theme.palette.primary.contrastText }}>
+          영문명
+        </strong>
+      ),
+      type: "string",
+      width: 150,
+      editable: false,
+    },
+    {
+      field: "market_warning",
+      renderHeader: () => (
+        <strong style={{ color: theme.palette.primary.contrastText }}>
+          유의 종목 여부
+        </strong>
+      ),
+      sortable: false,
+      flex: 1,
+      // valueGetter: (value, row) => formatDate(row.english_name),
       renderCell(params) {
         return (
           <Chip
-            label={params.row.side === "bid" ? "매수" : "매도"}
-            color={params.row.side === "bid" ? "warning" : "primary"}
+            label={
+              params.row.market_warning === "NONE"
+                ? "해당 사항 없음"
+                : "투자유의"
+            }
+            color={params.row.market_warning === "NONE" ? "primary" : "warning"}
             sx={{
               color: "white",
             }}
           />
         );
       },
-    },
-
-    {
-      field: "state",
-      renderHeader: () => (
-        <strong style={{ color: theme.palette.primary.contrastText }}>
-          주문 상태
-        </strong>
-      ),
-      type: "string",
-      width: 150,
-      editable: false,
-      valueGetter: (value, row) => getStateName(row.state),
-    },
-    {
-      field: "created_at",
-      renderHeader: () => (
-        <strong style={{ color: theme.palette.primary.contrastText }}>
-          생성 시간
-        </strong>
-      ),
-      // description: "This column has a value getter and is not sortable.",
-      sortable: false,
-      flex: 1,
-      valueGetter: (value, row) => formatDate(row.created_at),
     },
   ];
 
@@ -236,7 +242,9 @@ const ListScreen = () => {
                 sx={{ flex: 1 }}
                 renderInput={(params) => <TextField {...params} label="타입" />}
                 onChange={(event, value) => {
-                  setSide(value);
+                  if (value !== null && value !== undefined) {
+                    setSide(value);
+                  }
                 }}
                 isOptionEqualToValue={(option, value) => {
                   return option.value === value.value;
@@ -371,7 +379,7 @@ const ListScreen = () => {
                 rowCount={state.total}
                 columns={columns}
                 autoHeight
-                getRowId={(row) => row.uuid}
+                getRowId={(row) => row.market}
                 pagination
                 paginationMode="server"
                 pageSizeOptions={[5, 10, 30]}
@@ -403,4 +411,4 @@ const ListScreen = () => {
   );
 };
 
-export default ListScreen;
+export default MarketScreen;

@@ -10,10 +10,10 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     (config) => {
         const state = store.getState();
-        const token = state.userReducer.accessToken; // 토큰 또는 필요한 다른 값을 가져옵니다.
+        const token = config.url === '/user/refresh' ? state.userReducer.refreshToken : state.userReducer.accessToken; // 토큰 또는 필요한 다른 값을 가져옵니다.
 
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            config.headers.Authorization = `${token}`;
         }
 
         return config;
@@ -30,29 +30,30 @@ axiosInstance.interceptors.response.use(
     },
     async (error) => {
         const originalRequest = error.config;
+        const state = store.getState();
 
-        if (error.response.status === 403 && !originalRequest._retry) {
-            originalRequest._retry = true;
+        if (error.response && error.response.status === 403) {
+            if (originalRequest.url === '/user/refresh') {
+                store.dispatch(userSlice.actions.setUserLogout());
+                return Promise.reject(error);
+            }
 
             try {
-                const state = store.getState();
-                const refreshToken = state.userReducer.refreshToken;
+                // 새로운 토큰을 Redux에 저장합니다. TODO 변경 필요
+                const response = await axiosInstance.post('/user/refresh');
 
-                const response = await axiosInstance.post('/auth/refresh-token', {
-                    refreshToken,
-                });
+                const newAccessToken = response.data.ACCESS_TOKEN;
+                const newRefreshToken = response.data.REFRESH_TOKEN;
 
-                const newAccessToken = response.data.accessToken;
-
-                // 새로운 토큰을 Redux에 저장합니다.
+                // 새로운 토큰을 Redux에 저장합니다. TODO 변경 필요
                 store.dispatch(userSlice.actions.setUserLogin({
                     id: state.userReducer.id,
-                    token: newAccessToken,
-                    refreshToken, // 이미 있는 리프레시 토큰 유지
+                    accessToken: newAccessToken,
+                    refreshToken: newRefreshToken
                 }));
-
+                
                 // 새로운 토큰을 사용하여 원래의 요청을 다시 시도합니다.
-                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                originalRequest.headers.Authorization = newAccessToken;
                 return axiosInstance(originalRequest);
             } catch (refreshError) {
                 // refresh 토큰이 유효하지 않으면 로그아웃 처리
@@ -61,7 +62,7 @@ axiosInstance.interceptors.response.use(
             }
         }
 
-        return Promise.reject(error);
+        return Promise.reject(error); // 여기에서 에러를 반환하여 무한 요청을 방지합니다.
     }
 );
 

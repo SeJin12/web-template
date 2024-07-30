@@ -1,12 +1,11 @@
 import AddIcon from "@mui/icons-material/Add";
 import BlockIcon from "@mui/icons-material/Block";
-import RemoveIcon from "@mui/icons-material/Remove";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SearchIcon from "@mui/icons-material/Search";
+import SortIcon from "@mui/icons-material/Sort";
 import {
-  Box,
   Button,
-  Chip,
-  Grid,
   OutlinedInput,
   Paper,
   Stack,
@@ -18,13 +17,13 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { isAxiosError } from "axios";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
-import { Toast } from "../../components/CustomToast";
-import { OrderResponseType } from "../../types/OrderResponseType";
-import { formatDate, getStateName } from "../../utils/StringUtil";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import SortIcon from "@mui/icons-material/Sort";
 import { CustomNoRowsOverlay } from "../../components/CustomNoRowsOverlay";
+import { Toast } from "../../components/CustomToast";
+import axiosInstance from "../../config/api";
+import { NoticeType } from "../../types/NoticeType";
+import { formatDate } from "../../utils/StringUtil";
+import NoticeAddPopup from "../../components/notice/NoticeAddPopup";
+import NoticeViewPopup from "../../components/notice/NoticeViewPopup";
 
 export function SortedDescendingIcon() {
   return (
@@ -72,7 +71,7 @@ const NoticeScreen = () => {
   });
 
   const [state, setState] = useState<{
-    rows: OrderResponseType[];
+    rows: NoticeType[];
     total: number;
   }>({
     rows: [],
@@ -83,6 +82,8 @@ const NoticeScreen = () => {
     dayjs(new Date().getFullYear() + "-01-01")
   );
   const [endDate, setEndDate] = useState<Dayjs>(dayjs(new Date()));
+  const [openAdd, setOpenAdd] = useState(false);
+  const [notice, setNotice] = useState<NoticeType>();
 
   /**
    * 초기화
@@ -91,7 +92,6 @@ const NoticeScreen = () => {
     setWord("");
     setStartDate(dayjs(new Date().getFullYear() + "-01-01"));
     setEndDate(dayjs(new Date()));
-    console.log(startDate.get("date"));
   };
 
   /**
@@ -114,16 +114,21 @@ const NoticeScreen = () => {
     setLoading(true);
 
     try {
-      // const response = await axiosInstance.post("/order/history/user", {
-      //   page: paginationModel.page + 1,
-      //   pageSize: paginationModel.pageSize,
-      //   search: word,
-      // });
-      // const data: OrderResponse = response.data;
-      // setState({
-      //   rows: data.result,
-      //   total: data.CNT,
-      // });
+      const response = await axiosInstance.get("/notice", {
+        params: {
+          page: paginationModel.page,
+          pageSize: paginationModel.pageSize,
+          title: word,
+          startDate: startDate.format("YYYYMMDD"),
+          endDate: endDate.format("YYYYMMDD"),
+        },
+      });
+      const data: NoticeType[] = response.data;
+
+      setState({
+        rows: data,
+        total: data.length > 0 ? data[0].total_count : 0,
+      });
     } catch (error) {
       if (isAxiosError(error)) {
         Toast.warning("통신 오류");
@@ -135,19 +140,26 @@ const NoticeScreen = () => {
     }
   };
 
+  const onClickNoticeRow = (row: NoticeType) => {
+    setNotice(row);
+  };
+
   /**
    * 컴포넌트
    */
   const columns: GridColDef<(typeof state.rows)[number]>[] = [
     {
-      field: "No",
+      field: "번호",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
-          No
+          번호
         </strong>
       ),
-      width: 150,
-      editable: true,
+      width: 80,
+      // editable: true,
+      // headerAlign:'center',
+      // align:'center',
+      valueGetter: (value, row) => row.notice_id,
     },
     {
       field: "제목",
@@ -157,15 +169,12 @@ const NoticeScreen = () => {
           제목
         </strong>
       ),
+      // valueGetter: (value, row) => row.title,
       renderCell(params) {
         return (
-          <Chip
-            label={params.row.side === "bid" ? "매수" : "매도"}
-            color={params.row.side === "bid" ? "warning" : "primary"}
-            sx={{
-              color: "white",
-            }}
-          />
+          <Button color="info" onClick={() => onClickNoticeRow(params.row)}>
+            {params.row.title}
+          </Button>
         );
       },
     },
@@ -180,7 +189,7 @@ const NoticeScreen = () => {
       type: "string",
       width: 150,
       editable: false,
-      valueGetter: (value, row) => getStateName(row.state),
+      valueGetter: (value, row) => row.writer,
     },
     {
       field: "작성 날짜",
@@ -202,11 +211,31 @@ const NoticeScreen = () => {
       ),
       sortable: false,
       flex: 1,
+      valueGetter: (value, row) => row.view_count,
     },
   ];
 
   return (
     <Stack>
+      {notice !== undefined && (
+        <NoticeViewPopup
+          notice={notice}
+          open={notice !== undefined ? true : false}
+          onCancel={() => {
+            setNotice(undefined);
+            getRows();
+          }}
+        />
+      )}
+
+      <NoticeAddPopup
+        open={openAdd}
+        onSubmit={() => {
+          setOpenAdd(false);
+          getRows();
+        }}
+        onCancel={() => setOpenAdd(false)}
+      />
       <Stack flex={1}>
         <Paper elevation={3}>
           <Stack>
@@ -266,24 +295,10 @@ const NoticeScreen = () => {
                         }}
                       />
                     }
+                    onClick={() => setOpenAdd(true)}
                   >
                     <Typography variant="h4" color={"white"}>
-                      추가
-                    </Typography>
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="info"
-                    startIcon={
-                      <RemoveIcon
-                        sx={{
-                          color: "white",
-                        }}
-                      />
-                    }
-                  >
-                    <Typography variant="h4" color={"white"}>
-                      삭제
+                      글 작성
                     </Typography>
                   </Button>
                   <Button
@@ -321,7 +336,7 @@ const NoticeScreen = () => {
               rowCount={state.total}
               columns={columns}
               autoHeight
-              getRowId={(row) => row.uuid}
+              getRowId={(row) => row.notice_id}
               pagination
               paginationMode="server"
               pageSizeOptions={[5, 10, 30]}

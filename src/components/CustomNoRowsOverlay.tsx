@@ -24,7 +24,6 @@ export function CustomNoRowsOverlay() {
         fill="none"
         width={96}
         viewBox="0 0 452 257"
-        aria-hidden
         focusable="false"
       >
         <path

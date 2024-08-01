@@ -101,7 +101,7 @@ export default function NoticeAddPopup({ open, onSubmit, onCancel }: Props) {
       <Stack p={2} gap={2}>
         <Stack flexDirection={"row"} justifyContent={"space-between"}>
           <Box alignContent={"center"}>
-            <Typography variant="h3">공지사항 글 작성</Typography>
+            <Typography variant="subtitle1">공지사항 글 작성</Typography>
           </Box>
           <Box>
             <Button

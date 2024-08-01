@@ -212,10 +212,10 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
         }
       }
     >
-      <Stack p={2} gap={2}>
+      <Stack p={2} gap={2} flex={1} display={"flex"}>
         <Stack flexDirection={"row"} justifyContent={"space-between"}>
           <Box alignContent={"center"}>
-            <Typography variant="h3">공지사항</Typography>
+            <Typography variant="subtitle1">공지사항</Typography>
           </Box>
           <Box>
             <Button
@@ -256,7 +256,7 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
           />
         </Stack>
         <Divider />
-        <Stack gap={2}>
+        <Stack gap={2} flex={1}>
           <Stack>
             <Typography variant="h5">
               전체 댓글{" "}
@@ -266,34 +266,36 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
               개
             </Typography>
           </Stack>
-          <DataGrid
-            rows={state.rows}
-            rowCount={state.total}
-            columns={columns}
-            autoHeight
-            getRowId={(row) => row.created_at.toString()}
-            pagination
-            paginationMode="server"
-            pageSizeOptions={[5, 10, 30]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            disableRowSelectionOnClick
-            localeText={{
-              MuiTablePagination: {
-                labelRowsPerPage: "페이지 행",
-              },
-            }}
-            getRowHeight={() => "auto"}
-            sx={{
-              "&.MuiDataGrid-root": {
-                border: "none",
-                // backgroundColor: theme.palette.background.paper,
-              },
-              "& .MuiDataGrid-columnHeader": {
-                backgroundColor: theme.palette.info.main,
-              },
-            }}
-          />
+          <Stack>
+            <DataGrid
+              rows={state.rows}
+              rowCount={state.total}
+              columns={columns}
+              autoHeight
+              getRowId={(row) => row.created_at.toString()}
+              pagination
+              paginationMode="server"
+              pageSizeOptions={[5, 10, 30]}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              disableRowSelectionOnClick
+              localeText={{
+                MuiTablePagination: {
+                  labelRowsPerPage: "페이지 행",
+                },
+              }}
+              getRowHeight={() => "auto"}
+              sx={{
+                "&.MuiDataGrid-root": {
+                  border: "none",
+                  // backgroundColor: theme.palette.background.paper,
+                },
+                "& .MuiDataGrid-columnHeader": {
+                  backgroundColor: theme.palette.info.main,
+                },
+              }}
+            />
+          </Stack>
         </Stack>
         <Stack flexDirection={"row"} gap={1}>
           <OutlinedInput

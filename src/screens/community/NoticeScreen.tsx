@@ -172,7 +172,11 @@ const NoticeScreen = () => {
       // valueGetter: (value, row) => row.title,
       renderCell(params) {
         return (
-          <Button color="info" onClick={() => onClickNoticeRow(params.row)}>
+          <Button
+            variant="outlined"
+            color="info"
+            onClick={() => onClickNoticeRow(params.row)}
+          >
             {params.row.title}
           </Button>
         );

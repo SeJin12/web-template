@@ -1,4 +1,3 @@
-import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import {
   Box,
   Button,
@@ -88,7 +87,7 @@ const LoginScreen = () => {
         justifyContent={"center"}
       >
         <Stack>
-          <Typography variant="h3" textAlign={"center"}>
+          <Typography variant="subtitle1" textAlign={"center"}>
             데이터 관리 시스템
           </Typography>
         </Stack>
@@ -111,19 +110,10 @@ const LoginScreen = () => {
           <Button
             variant="contained"
             color="primary"
-            size="small"
-            sx={{
-              p: 1,
-            }}
+            size="large"
             onClick={handleLogin}
           >
-            <VpnKeyIcon
-              sx={{
-                color: "white",
-                mr: 1,
-              }}
-            />
-            <Typography variant="h4" color={"white"}>
+            <Typography variant="h3" color={"white"}>
               로그인
             </Typography>
           </Button>

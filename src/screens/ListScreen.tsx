@@ -177,6 +177,7 @@ const ListScreen = () => {
     },
     {
       field: "side",
+      display: "flex",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
           주문 종류
@@ -184,13 +185,9 @@ const ListScreen = () => {
       ),
       renderCell(params) {
         return (
-          <Chip
-            label={params.row.side === "bid" ? "매수" : "매도"}
-            color={params.row.side === "bid" ? "warning" : "primary"}
-            sx={{
-              color: "white",
-            }}
-          />
+          <Typography variant="h6">
+            {params.row.side === "bid" ? "매수" : "매도"}
+          </Typography>
         );
       },
     },
@@ -378,7 +375,7 @@ const ListScreen = () => {
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
                 loading={loading}
-                checkboxSelection
+                // checkboxSelection
                 disableRowSelectionOnClick
                 localeText={{
                   MuiTablePagination: {

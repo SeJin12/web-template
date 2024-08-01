@@ -1,3 +1,4 @@
+import { SocketTickType } from "./SocketTickType"
 
 export type MarketResponseType = {
     market: string
@@ -19,6 +20,7 @@ export type MarketResponseType = {
     locked: string
     unit_currency: string
     warning: string
+    ticker: SocketTickType;
 }
 
 export type MarketResponse = {

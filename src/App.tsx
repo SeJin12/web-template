@@ -23,6 +23,7 @@ import MainScreen from "./screens/MainScreen";
 import MarketScreen from "./screens/MarketScreen";
 import { RootState } from "./store/reducer";
 import NoticeScreen from "./screens/community/NoticeScreen";
+import HeaderBar from "./components/HeaderBar";
 
 function App() {
   const [mode, setMode] = useState<PaletteMode>("light");
@@ -40,66 +41,66 @@ function App() {
       <CssBaseline />
       <SnackbarUtilsConfigurator />
       <Router>
-        <Stack
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          {isAuthorized && <NavBar drawerWidth={drawerWidth} />}
+        <Stack>
+          <Stack>{isAuthorized && <HeaderBar />}</Stack>
           <Stack
-            flex={1}
-            height={"100vh"}
-            width={"88vw"}
-            p={isAuthorized ? 2 : 0}
-            sx={
-              {
-                // backgroundColor:theme.palette.background.paper
-              }
-            }
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+            }}
           >
-            <Routes>
-              <Route
-                path="/login"
-                element={!isAuthorized ? <LoginScreen /> : <Navigate to="/" />}
-              />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <MainScreen />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/market"
-                element={
-                  <ProtectedRoute>
-                    <MarketScreen />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/list"
-                element={
-                  <ProtectedRoute>
-                    <ListScreen />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/notice"
-                element={
-                  <ProtectedRoute>
-                    <NoticeScreen />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="*"
-                element={<Navigate to={isAuthorized ? "/" : "/login"} />}
-              />
-            </Routes>
+            {isAuthorized && <NavBar drawerWidth={drawerWidth} />}
+            <Stack
+              flex={1}
+              height={isAuthorized ? "" : "100vh"}
+              width={"88vw"}
+              p={isAuthorized ? 2 : 0}
+            >
+              <Routes>
+                <Route
+                  path="/login"
+                  element={
+                    !isAuthorized ? <LoginScreen /> : <Navigate to="/" />
+                  }
+                />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <MainScreen />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/market"
+                  element={
+                    <ProtectedRoute>
+                      <MarketScreen />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/list"
+                  element={
+                    <ProtectedRoute>
+                      <ListScreen />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/notice"
+                  element={
+                    <ProtectedRoute>
+                      <NoticeScreen />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="*"
+                  element={<Navigate to={isAuthorized ? "/" : "/login"} />}
+                />
+              </Routes>
+            </Stack>
           </Stack>
         </Stack>
       </Router>

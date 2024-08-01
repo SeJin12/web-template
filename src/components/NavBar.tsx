@@ -110,38 +110,9 @@ const NavBar = ({ drawerWidth }: Props) => {
       }}
     >
       <Box>
-        <Stack
-          sx={{
-            p: 2,
-            // borderWidth: 1,
-            // borderStyle: "solid",
-            // borderRadius: 3,
-            // borderColor: theme.palette.secondary.dark,
-          }}
-          gap={2}
-        >
-          <Stack flexDirection={"row"} justifyContent={"space-evenly"} gap={1}>
-            <Box>
-              <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
-                {id.substring(0, 2).toUpperCase()}
-              </Avatar>
-            </Box>
-            <Box alignContent={"center"} sx={{}}>
-              {name}
-            </Box>
-          </Stack>
-          <Stack>
-            <Button variant="outlined" onClick={onClickLogout}>
-              <Typography variant="h4">로그아웃</Typography>
-            </Button>
-          </Stack>
+        <Stack justifyContent={"center"} alignItems={"center"} height={65}>
+          <Typography variant="h3">LOGO</Typography>
         </Stack>
-        <Divider
-          sx={{
-            mt: 1,
-            mb: 1,
-          }}
-        />
         <List
           sx={{
             paddingTop: 0,
@@ -186,12 +157,6 @@ const NavBar = ({ drawerWidth }: Props) => {
             </ListItem>
           ))}
         </List>
-        <Divider
-          sx={{
-            mt: 1,
-            mb: 1,
-          }}
-        />
         <List
           sx={{
             paddingTop: 0,
@@ -242,12 +207,6 @@ const NavBar = ({ drawerWidth }: Props) => {
             </List>
           </Collapse>
         </List>
-        <Divider
-          sx={{
-            mt: 1,
-            mb: 1,
-          }}
-        />
         <List
           sx={{
             paddingTop: 0,

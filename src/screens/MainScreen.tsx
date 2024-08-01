@@ -1,7 +1,6 @@
-import { BarChart } from "@mui/x-charts/BarChart";
-import { Grid, Skeleton, Stack, useTheme } from "@mui/material";
+import { Grid, Stack, useTheme } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
-import { Timeline } from "@mui/icons-material";
+import { BarChart } from "@mui/x-charts/BarChart";
 
 const MainScreen = () => {
   const theme = useTheme();
@@ -11,43 +10,10 @@ const MainScreen = () => {
       sx={{
         backgroundColor: theme.palette.background.default,
         height: "100vh",
-        // display: "flex",
-        // direction: "ltr",
-        // flexDirection: "row",
       }}
     >
       <Grid container spacing={2}>
-        <Grid item xs={6}>
-          {/* <Timeline position="alternate">
-      <TimelineItem>
-        <TimelineSeparator>
-          <TimelineDot variant="outlined" />
-          <TimelineConnector />
-        </TimelineSeparator>
-        <TimelineContent>Eat</TimelineContent>
-      </TimelineItem>
-      <TimelineItem>
-        <TimelineSeparator>
-          <TimelineDot variant="outlined" color="primary" />
-          <TimelineConnector />
-        </TimelineSeparator>
-        <TimelineContent>Code</TimelineContent>
-      </TimelineItem>
-      <TimelineItem>
-        <TimelineSeparator>
-          <TimelineDot variant="outlined" color="secondary" />
-          <TimelineConnector />
-        </TimelineSeparator>
-        <TimelineContent>Sleep</TimelineContent>
-      </TimelineItem>
-      <TimelineItem>
-        <TimelineSeparator>
-          <TimelineDot variant="outlined" />
-        </TimelineSeparator>
-        <TimelineContent>Repeat</TimelineContent>
-      </TimelineItem>
-    </Timeline> */}
-        </Grid>
+        <Grid item xs={6}></Grid>
         <Grid item xs={6}></Grid>
         <Grid item xs={6}>
           <BarChart

@@ -48,6 +48,7 @@ axiosInstance.interceptors.response.use(
                 // 새로운 토큰을 Redux에 저장합니다. TODO 변경 필요
                 store.dispatch(userSlice.actions.setUserLogin({
                     id: state.userReducer.id,
+                    name: state.userReducer.name,
                     accessToken: newAccessToken,
                     refreshToken: newRefreshToken
                 }));

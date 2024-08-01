@@ -13,6 +13,21 @@
   src: url('./assets/font/malgunsl.ttf')
 }
 
+@font-face {
+  font-family: 'GmarketSansTTFMedium';
+  src: url('./assets/font/GmarketSansTTFMedium.ttf')
+}
+
+@font-face {
+  font-family: 'GmarketSansTTFLight';
+  src: url('./assets/font/GmarketSansTTFLight.ttf')
+}
+
+@font-face {
+  font-family: 'GmarketSansTTFBold';
+  src: url('./assets/font/GmarketSansTTFBold.ttf')
+}
+
 body {
   margin: 0;
   padding: 0;

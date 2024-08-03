@@ -3,6 +3,7 @@ import FilterNoneIcon from "@mui/icons-material/FilterNone";
 import {
   Box,
   Divider,
+  IconButton,
   OutlinedInput,
   Stack,
   TextField,
@@ -18,6 +19,7 @@ import { NoticeDetailType, NoticeType } from "../../types/NoticeType";
 import { Toast } from "../CustomToast";
 import { DataGrid, GridColDef, GridRowHeightParams } from "@mui/x-data-grid";
 import { formatDate } from "../../utils/StringUtil";
+import ClearIcon from "@mui/icons-material/Clear";
 
 interface Props {
   open: boolean;
@@ -205,32 +207,28 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
       fullWidth={!fullScreen}
       maxWidth={maxWidth}
       fullScreen={fullScreen}
-      sx={
-        {
-          // borderWidth: 1,
-          // borderStyle: "solid",
-        }
-      }
     >
       <Stack p={2} gap={2} flex={1} display={"flex"}>
         <Stack flexDirection={"row"} justifyContent={"space-between"}>
           <Box alignContent={"center"}>
             <Typography variant="subtitle1">공지사항</Typography>
           </Box>
-          <Box>
-            <Button
-              variant="text"
-              color="info"
+          <Stack flexDirection={"row"}>
+            <IconButton
+              aria-label="screen"
               onClick={() => setFullScreen(!fullScreen)}
-              autoFocus
+              size="medium"
             >
               {fullScreen ? (
                 <FilterNoneIcon fontSize="small" />
               ) : (
                 <CropDinIcon fontSize="medium" />
               )}
-            </Button>
-          </Box>
+            </IconButton>
+            <IconButton aria-label="close" onClick={handleClose} size="medium">
+              <ClearIcon fontSize="inherit" />
+            </IconButton>
+          </Stack>
         </Stack>
         <Stack gap={2}>
           <OutlinedInput
@@ -241,6 +239,9 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
             size="small"
             fullWidth
             readOnly
+            sx={{
+              fontSize:theme.typography.subtitle1
+            }}
           />
 
           <OutlinedInput
@@ -253,6 +254,9 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
             placeholder={"내용"}
             fullWidth
             readOnly
+            sx={{
+              fontSize:theme.typography.body2
+            }}
           />
         </Stack>
         <Divider />
@@ -260,7 +264,12 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
           <Stack>
             <Typography variant="h5">
               전체 댓글{" "}
-              <span style={{ fontWeight: "bold", color: "black" }}>
+              <span
+                style={{
+                  fontWeight: "bold",
+                  color: theme.palette.text.primary,
+                }}
+              >
                 {state.total}
               </span>{" "}
               개
@@ -313,17 +322,6 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
             color={"info"}
           >
             등록
-          </Button>
-        </Stack>
-        <Divider />
-        <Stack>
-          <Button
-            variant="outlined"
-            onClick={handleClose}
-            autoFocus
-            color={"info"}
-          >
-            닫기
           </Button>
         </Stack>
       </Stack>

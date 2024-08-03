@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  InputAdornment,
   OutlinedInput,
   Paper,
   Stack,
@@ -24,6 +25,11 @@ import {
 import { MarketType } from "../types/MarketType";
 import { SocketTickType } from "../types/SocketTickType";
 import { formatNumber, getOrderPrice } from "../utils/StringUtil";
+import { AccountType } from "../types/AccountType";
+import {
+  getEvalutationAmount,
+  getEvalutationGainsAndLosses,
+} from "../utils/convertUtil";
 
 interface AutoCompleteType {
   label: string;
@@ -53,6 +59,9 @@ const MarketScreen = () => {
     total: 0,
   });
   const [word, setWord] = useState<string>("");
+  const [bidPrice, setBidPrice] = useState<number>(10000);
+  const [orderTick, setOrderTick] = useState<number>(5);
+  const [account, setAccount] = useState<AccountType>();
 
   /**
    * 초기화
@@ -62,12 +71,49 @@ const MarketScreen = () => {
   };
 
   /**
-   * 화면 렌더링
+   * 호출
    */
-  useEffect(() => {
-    getRows();
-    getMarket();
-  }, [paginationModel]);
+  const getAccount = async () => {
+    try {
+      const response = await axiosInstance.get("/account");
+
+      const data: AccountType[] = response.data;
+      console.log(data);
+      setAccount(data.find((v) => v.currency === "KRW"));
+    } catch (error) {
+      if (isAxiosError(error)) {
+        Toast.warning("통신 오류");
+      } else {
+        Toast.error("예상치 못한 오류 발생");
+      }
+    }
+  };
+
+  const getRows = async () => {
+    setLoading(true);
+
+    try {
+      const response = await axiosInstance.post("/market/user", {
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+        search: word,
+      });
+
+      const data: MarketResponse = response.data;
+      setState({
+        rows: data.result,
+        total: data.CNT,
+      });
+    } catch (error) {
+      if (isAxiosError(error)) {
+        Toast.warning("통신 오류");
+      } else {
+        Toast.error("예상치 못한 오류 발생");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getMarket = async () => {
     if (ws.current) {
@@ -85,6 +131,15 @@ const MarketScreen = () => {
       );
     }
   };
+
+  /**
+   * 화면 렌더링
+   */
+  useEffect(() => {
+    getRows();
+    getMarket();
+    getAccount();
+  }, [paginationModel]);
 
   useEffect(() => {
     if (state.rows.length > 0) {
@@ -129,35 +184,27 @@ const MarketScreen = () => {
   /**
    * 컴포넌트
    */
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      getRows();
+  const onClickOrder = async (type: "bid" | "ask", row: MarketResponseType) => {
+    try {
+      await axiosInstance.post("/order/spec", {
+        market: row.market,
+        side: type,
+        bid_price: bidPrice,
+        tick: orderTick,
+        ord_type: "limit",
+      });
+
+      Toast.success(
+        `${row.korean_name} ${type === "bid" ? "매수" : "매도"} 완료`
+      );
+    } catch (e: unknown) {
+      console.log(e);
     }
   };
 
-  const getRows = async () => {
-    setLoading(true);
-
-    try {
-      const response = await axiosInstance.post("/market/user", {
-        page: paginationModel.page + 1,
-        pageSize: paginationModel.pageSize,
-        search: word,
-      });
-
-      const data: MarketResponse = response.data;
-      setState({
-        rows: data.result,
-        total: data.CNT,
-      });
-    } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("통신 오류");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
-    } finally {
-      setLoading(false);
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      getRows();
     }
   };
 
@@ -166,10 +213,10 @@ const MarketScreen = () => {
    */
   const columns: GridColDef<(typeof state.rows)[number]>[] = [
     {
-      field: "이름",
+      field: "심볼",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
-          Market
+          심볼
         </strong>
       ),
       width: 90,
@@ -177,21 +224,33 @@ const MarketScreen = () => {
       editable: true,
       renderCell(params) {
         return (
-          <Stack pt={1} pb={1}>
-            <Typography variant="h6">
-              {params.row.market.substring(4)}
-            </Typography>
+          <Stack pt={1} pb={1} flexDirection={"row"} gap={1}>
+            <Box display={"flex"}>
+              <img
+                src={`https://static.upbit.com/logos/${params.row.market.substring(
+                  4
+                )}.png`}
+                alt="symbol"
+                width={25}
+                height={25}
+              />
+            </Box>
+            <Box alignContent={"center"}>
+              <Typography variant="h6">
+                {params.row.market.substring(4)}
+              </Typography>
+            </Box>
           </Stack>
         );
       },
     },
     {
-      field: "한글명",
+      field: "코인명",
       width: 150,
       display: "flex",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
-          한글명
+          코인명
         </strong>
       ),
       renderCell(params) {
@@ -233,6 +292,7 @@ const MarketScreen = () => {
         </strong>
       ),
       display: "flex",
+      width: 120,
       sortable: false,
       renderCell(params) {
         return params.row.avg_buy_price === "0" ? (
@@ -266,6 +326,7 @@ const MarketScreen = () => {
         </strong>
       ),
       display: "flex",
+      width: 120,
       sortable: false,
       renderCell(params) {
         return params.row.avg_buy_price === "0" ||
@@ -275,12 +336,7 @@ const MarketScreen = () => {
           <Stack flexDirection={"row"} gap={1}>
             <Typography variant="h6">
               {formatNumber(
-                Number(
-                  (
-                    Number(params.row.ticker.trade_price) *
-                    (Number(params.row.balance) + Number(params.row.locked))
-                  ).toFixed(0)
-                )
+                Number(getEvalutationAmount(params.row).toFixed(0))
               )}
             </Typography>
             <Typography variant="h5" color={theme.palette.text.secondary}>
@@ -299,6 +355,7 @@ const MarketScreen = () => {
       ),
       display: "flex",
       sortable: false,
+      minWidth: 210,
       renderCell(params) {
         return params.row.avg_buy_price === "0" ||
           params.row.ticker === undefined ? (
@@ -306,27 +363,26 @@ const MarketScreen = () => {
         ) : (
           <Stack pt={1} pb={1}>
             <Stack flexDirection={"row"}>
-              <Typography variant="h6">
+              <Typography
+                variant="h6"
+                sx={{
+                  color:
+                    getEvalutationGainsAndLosses(params.row) > 0
+                      ? theme.palette.error.main
+                      : theme.palette.warning.main,
+                }}
+              >
                 {(
                   (params.row.ticker.trade_price /
                     Number(params.row.avg_buy_price) -
                     1) *
                   100
-                ).toFixed(2)}
-              </Typography>
-              <Typography variant="h5">%</Typography>
-            </Stack>
-            <Stack flexDirection={"row"}>
-              <Typography variant="h6">
-                {(
-                  Number(params.row.ticker.trade_price) *
-                    (Number(params.row.balance) + Number(params.row.locked)) -
-                  Number(params.row.avg_buy_price) *
-                    (Number(params.row.balance) + Number(params.row.locked))
-                ).toFixed(0)}
-              </Typography>
-              <Typography variant="h5" color={theme.palette.text.secondary}>
-                KRW
+                ).toFixed(2)}{" "}
+                % ({" "}
+                {formatNumber(
+                  Number(getEvalutationGainsAndLosses(params.row).toFixed(0))
+                )}{" "}
+                KRW)
               </Typography>
             </Stack>
           </Stack>
@@ -334,7 +390,7 @@ const MarketScreen = () => {
       },
     },
     {
-      field: "signed_change_rate",
+      field: "전일 대비",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
           전일 대비
@@ -349,14 +405,14 @@ const MarketScreen = () => {
       renderCell(params) {
         return (
           <Typography
-            variant="h6"
+            variant="h5"
             sx={{
               color:
                 params.row.ticker === undefined
                   ? "black"
                   : params.row.ticker.change === "RISE"
-                  ? "red"
-                  : "blue",
+                  ? theme.palette.error.main
+                  : theme.palette.warning.main,
             }}
           >
             {params.row.ticker === undefined
@@ -371,34 +427,67 @@ const MarketScreen = () => {
       },
     },
     {
-      field: "tradePrice",
+      field: "현재가",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
           현재가
         </strong>
       ),
-      flex: 1,
+      width: 160,
       type: "string",
-      width: 150,
       display: "flex",
       editable: false,
       renderCell(params) {
         return (
           <Typography
-            variant="h6"
+            variant="h5"
             sx={{
               color:
                 params.row.ticker === undefined
                   ? "black"
                   : params.row.ticker.change === "RISE"
-                  ? "red"
-                  : "blue",
+                  ? theme.palette.error.main
+                  : theme.palette.warning.main,
             }}
           >
             {params.row.ticker === undefined
               ? ""
               : formatNumber(params.row.ticker.trade_price) + " 원"}
           </Typography>
+        );
+      },
+    },
+    {
+      field: "actions",
+      renderHeader: () => (
+        <strong style={{ color: theme.palette.primary.contrastText }}>
+          Action
+        </strong>
+      ),
+      flex: 1,
+      type: "string",
+      display: "flex",
+      editable: false,
+      renderCell(params) {
+        return (
+          <Stack flexDirection={"row"} gap={1}>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => onClickOrder("bid", params.row)}
+            >
+              <Typography variant="h6">매수</Typography>
+            </Button>
+            {params.row.currency && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => onClickOrder("ask", params.row)}
+              >
+                <Typography variant="h6">매도</Typography>
+              </Button>
+            )}
+          </Stack>
         );
       },
     },
@@ -411,34 +500,112 @@ const MarketScreen = () => {
           <Stack>
             <Stack flexDirection={"row"} p={2} justifyContent={"space-between"}>
               <Stack flexDirection={"row"} gap={1}>
+                <TextField
+                  name="KRW"
+                  value={
+                    account === undefined
+                      ? 0
+                      : formatNumber(
+                          Number(
+                            (
+                              Number(account.balance) + Number(account.locked)
+                            ).toFixed(0)
+                          )
+                        )
+                  }
+                  label={"보유 원화"}
+                  inputMode="numeric"
+                  size="small"
+                  placeholder="KRW"
+                  sx={{
+                    width: 150,
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">원</InputAdornment>
+                    ),
+                  }}
+                />
+                <TextField
+                  name="KRW"
+                  value={
+                    account === undefined
+                      ? 0
+                      : formatNumber(Number(Number(account.balance).toFixed(0)))
+                  }
+                  label={"주문 가능"}
+                  inputMode="numeric"
+                  size="small"
+                  placeholder="KRW"
+                  sx={{
+                    width: 150,
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">원</InputAdornment>
+                    ),
+                  }}
+                />
                 <OutlinedInput
+                  // fullWidth
                   name="word"
                   value={word}
                   onChange={(e) => setWord(e.target.value)}
                   onKeyDown={handleKeyPress}
                   size="small"
-                  placeholder="Market"
+                  placeholder="코인명/심볼 검색"
                 />
                 <ButtonGroup>
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     color="primary"
                     size="small"
                     onClick={getRows}
-                    startIcon={<SearchIcon color="primary" />}
+                    startIcon={
+                      <SearchIcon
+                        sx={{ color: theme.palette.primary.contrastText }}
+                      />
+                    }
                   >
                     <Typography variant="h6">검색</Typography>
                   </Button>
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     color="primary"
                     size="small"
                     onClick={init}
-                    startIcon={<BlockIcon color="primary" />}
+                    startIcon={
+                      <BlockIcon
+                        sx={{ color: theme.palette.primary.contrastText }}
+                      />
+                    }
                   >
                     <Typography variant="h6">초기화</Typography>
                   </Button>
                 </ButtonGroup>
+              </Stack>
+              <Stack flexDirection={"row"} gap={1}>
+                <TextField
+                  name="orderTick"
+                  value={orderTick}
+                  label={"Tick"}
+                  inputMode="numeric"
+                  type="number"
+                  onChange={(e) => setOrderTick(Number(e.target.value))}
+                  // onKeyDown={handleKeyPress}
+                  size="small"
+                  placeholder="orderTick"
+                />
+                <TextField
+                  name="bidPrice"
+                  value={bidPrice}
+                  label={"매수 금액"}
+                  type="number"
+                  onChange={(e) => setBidPrice(Number(e.target.value))}
+                  // onKeyDown={handleKeyPress}
+                  size="small"
+                  placeholder="Market"
+                />
               </Stack>
             </Stack>
           </Stack>
@@ -456,11 +623,13 @@ const MarketScreen = () => {
                 getRowId={(row) => row.market}
                 pagination
                 paginationMode="server"
-                pageSizeOptions={[5, 10, 30]}
+                pageSizeOptions={[10, 20, 30, 50]}
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
                 loading={loading}
                 // checkboxSelection
+                disableColumnSorting
+                disableColumnFilter
                 disableRowSelectionOnClick
                 getRowHeight={() => "auto"}
                 localeText={{

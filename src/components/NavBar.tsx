@@ -103,7 +103,7 @@ const NavBar = ({ drawerWidth }: Props) => {
       }}
       PaperProps={{
         sx: {
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: theme.palette.background.default,
           borderWidth: 0,
           // p: 2,
         },
@@ -138,7 +138,7 @@ const NavBar = ({ drawerWidth }: Props) => {
                   sx={{
                     color:
                       location.pathname === item.link
-                        ? theme.palette.primary.main
+                        ? theme.palette.text.primary
                         : theme.palette.text.secondary,
                   }}
                 >
@@ -149,7 +149,7 @@ const NavBar = ({ drawerWidth }: Props) => {
                   sx={{
                     color:
                       location.pathname === item.link
-                        ? theme.palette.primary.main
+                        ? theme.palette.text.primary
                         : theme.palette.text.secondary,
                   }}
                 />
@@ -180,7 +180,7 @@ const NavBar = ({ drawerWidth }: Props) => {
                   sx={{
                     color:
                       location.pathname === "/notice"
-                        ? theme.palette.primary.main
+                        ? theme.palette.text.primary
                         : theme.palette.text.secondary,
                   }}
                 >
@@ -191,7 +191,7 @@ const NavBar = ({ drawerWidth }: Props) => {
                   sx={{
                     color:
                       location.pathname === "/notice"
-                        ? theme.palette.primary.main
+                        ? theme.palette.text.primary
                         : theme.palette.text.secondary,
                   }}
                 />
@@ -199,10 +199,25 @@ const NavBar = ({ drawerWidth }: Props) => {
             </List>
             <List component="div" disablePadding>
               <ListItemButton sx={{ pl: 4 }}>
-                <ListItemIcon>
+              <ListItemIcon
+                  sx={{
+                    color:
+                      location.pathname === "/board"
+                        ? theme.palette.text.primary
+                        : theme.palette.text.secondary,
+                  }}
+                >
                   <QuestionAnswerIcon />
                 </ListItemIcon>
-                <ListItemText primary="게시판" />
+                <ListItemText
+                  primary="게시판"
+                  sx={{
+                    color:
+                      location.pathname === "/board"
+                        ? theme.palette.text.primary
+                        : theme.palette.text.secondary,
+                  }}
+                />
               </ListItemButton>
             </List>
           </Collapse>

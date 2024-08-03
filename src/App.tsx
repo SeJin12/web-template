@@ -26,8 +26,7 @@ import NoticeScreen from "./screens/community/NoticeScreen";
 import HeaderBar from "./components/HeaderBar";
 
 function App() {
-  const [mode, setMode] = useState<PaletteMode>("light");
-  const theme = useTheme();
+  const [mode, setMode] = useState<PaletteMode>("dark");
   const drawerWidth = 220;
   const { id } = useSelector((state: RootState) => state.userReducer);
   const isAuthorized = id !== "";
@@ -42,7 +41,11 @@ function App() {
       <SnackbarUtilsConfigurator />
       <Router>
         <Stack>
-          <Stack>{isAuthorized && <HeaderBar />}</Stack>
+          <Stack>
+            {isAuthorized && (
+              <HeaderBar mode={mode} toggleColorMode={toggleColorMode} />
+            )}
+          </Stack>
           <Stack
             sx={{
               display: "flex",

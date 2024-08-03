@@ -110,7 +110,11 @@ export default function NoticeAddPopup({ open, onSubmit, onCancel }: Props) {
               onClick={() => setFullScreen(!fullScreen)}
               autoFocus
             >
-              {fullScreen ? <FilterNoneIcon fontSize="small" /> : <CropDinIcon fontSize="medium" />}
+              {fullScreen ? (
+                <FilterNoneIcon fontSize="small" />
+              ) : (
+                <CropDinIcon fontSize="medium" />
+              )}
             </Button>
           </Box>
         </Stack>
@@ -120,7 +124,6 @@ export default function NoticeAddPopup({ open, onSubmit, onCancel }: Props) {
               name="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              //   onKeyDown={handleKeyPress}
               size="small"
               placeholder={"제목"}
               fullWidth
@@ -135,6 +138,7 @@ export default function NoticeAddPopup({ open, onSubmit, onCancel }: Props) {
                 exclusive
                 onChange={handleAlignment}
                 aria-label="text alignment"
+                size="small"
               >
                 <ToggleButton value="left" aria-label="left aligned">
                   <FormatAlignLeftIcon />
@@ -153,6 +157,7 @@ export default function NoticeAddPopup({ open, onSubmit, onCancel }: Props) {
                 value={formats}
                 onChange={handleFormat}
                 aria-label="text formatting"
+                size="small"
               >
                 <ToggleButton value="bold" aria-label="bold">
                   <FormatBoldIcon />
@@ -173,7 +178,7 @@ export default function NoticeAddPopup({ open, onSubmit, onCancel }: Props) {
               name="content"
               value={content}
               multiline
-              minRows={5}
+              minRows={1}
               onChange={(e) => setContent(e.target.value)}
               //   onKeyDown={handleKeyPress}
               size="small"
@@ -187,7 +192,7 @@ export default function NoticeAddPopup({ open, onSubmit, onCancel }: Props) {
             작성하기
           </Button>
           <Button
-            variant="outlined"
+            variant="contained"
             color="info"
             onClick={handleClose}
             autoFocus

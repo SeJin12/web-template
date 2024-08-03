@@ -10,6 +10,7 @@ import {
   Button,
   ButtonGroup,
   Chip,
+  InputAdornment,
   OutlinedInput,
   Paper,
   Stack,
@@ -19,14 +20,17 @@ import {
 } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { isAxiosError } from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import file1 from "../assets/main.jpg";
 import { Toast } from "../components/CustomToast";
 import axiosInstance from "../config/api";
 import { OrderResponse, OrderResponseType } from "../types/OrderResponseType";
 import { downloadFile } from "../utils/fileUtil";
-import { formatDate, getStateName } from "../utils/StringUtil";
+import { formatDate, formatNumber, getStateName } from "../utils/StringUtil";
+import { getProfitKrw, getProfitPercent } from "../utils/convertUtil";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs, { Dayjs } from "dayjs";
 
 interface AutoCompleteType {
   label: string;
@@ -61,9 +65,11 @@ const ListScreen = () => {
 
   const [state, setState] = useState<{
     rows: OrderResponseType[];
+    profit: number;
     total: number;
   }>({
     rows: [],
+    profit: 0,
     total: 0,
   });
   const [word, setWord] = useState<string>("");
@@ -71,8 +77,18 @@ const ListScreen = () => {
   const [orderState, setOrderState] = useState<AutoCompleteType | null>(
     states[0]
   );
+  const [startDate, setStartDate] = useState<Dayjs>(
+    dayjs(
+      new Date().getFullYear() +
+        "-" +
+        String(new Date().getMonth() + 1).padStart(2, "0") +
+        "-01"
+    )
+  );
+  const [endDate, setEndDate] = useState<Dayjs>(dayjs(new Date()));
 
   const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   /**
    * 초기화
@@ -81,6 +97,15 @@ const ListScreen = () => {
     setWord("");
     setSide(sides[0]);
     setOrderState(states[0]);
+    setStartDate(
+      dayjs(
+        new Date().getFullYear() +
+          "-" +
+          String(new Date().getMonth() + 1).padStart(2, "0") +
+          "-01"
+      )
+    );
+    setEndDate(dayjs(new Date()));
   };
 
   /**
@@ -101,6 +126,8 @@ const ListScreen = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
+    console.log("a");
+
     if (selectedFile) {
       // setFile(selectedFile);
       console.log("Selected file:", selectedFile.type);
@@ -131,6 +158,10 @@ const ListScreen = () => {
         // reader.readAsBinaryString(selectedFile);
       }
     }
+
+    if (fileRef.current) {
+      fileRef.current.value = ""; // input의 값을 빈 문자열로 설정하여 초기화
+    }
   };
 
   const getRows = async () => {
@@ -143,11 +174,14 @@ const ListScreen = () => {
         search: word,
         side: side === null ? "" : side.value,
         state: orderState === null ? "all" : orderState.value,
+        startDate,
+        endDate,
       });
 
       const data: OrderResponse = response.data;
       setState({
         rows: data.result,
+        profit: data.PROFIT,
         total: data.CNT,
       });
     } catch (error) {
@@ -166,17 +200,37 @@ const ListScreen = () => {
    */
   const columns: GridColDef<(typeof state.rows)[number]>[] = [
     {
-      field: "korean_name",
+      field: "코인명",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
-          Market
+          코인명
         </strong>
       ),
       width: 150,
       editable: true,
+      display: "flex",
+      renderCell(params) {
+        return (
+          <Stack pt={1} pb={1} flexDirection={"row"} gap={1}>
+            <Box display={"flex"}>
+              <img
+                src={`https://static.upbit.com/logos/${params.row.market.substring(
+                  4
+                )}.png`}
+                alt="symbol"
+                width={25}
+                height={25}
+              />
+            </Box>
+            <Box alignContent={"center"}>
+              <Typography variant="h6">{params.row.korean_name}</Typography>
+            </Box>
+          </Stack>
+        );
+      },
     },
     {
-      field: "side",
+      field: "주문 종류",
       display: "flex",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
@@ -193,7 +247,7 @@ const ListScreen = () => {
     },
 
     {
-      field: "state",
+      field: "주문 상태",
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
           주문 상태
@@ -205,15 +259,133 @@ const ListScreen = () => {
       valueGetter: (value, row) => getStateName(row.state),
     },
     {
-      field: "created_at",
+      field: "주문가",
+      width: 150,
+      renderHeader: () => (
+        <strong style={{ color: theme.palette.primary.contrastText }}>
+          주문가 (원)
+        </strong>
+      ),
+      sortable: false,
+      display: "flex",
+      renderCell(params) {
+        return (
+          <Typography variant="h5">
+            {formatNumber(Number(params.row.price))}{" "}
+            <span style={{ color: "#8C8C8C" }}>KRW</span>
+          </Typography>
+        );
+      },
+    },
+    {
+      field: "매수 평균가",
+      renderHeader: () => (
+        <strong style={{ color: theme.palette.primary.contrastText }}>
+          매수 평균가
+        </strong>
+      ),
+      width: 150,
+      editable: true,
+      display: "flex",
+      renderCell(params) {
+        return params.row.side === "ask" ? (
+          <Typography variant="h5">
+            {formatNumber(Number(params.row.avg_buy_price))}{" "}
+            <span style={{ color: "#8C8C8C" }}>KRW</span>
+          </Typography>
+        ) : (
+          <></>
+        );
+      },
+    },
+    {
+      field: "수익률",
+      renderHeader: () => (
+        <strong style={{ color: theme.palette.primary.contrastText }}>
+          수익률
+        </strong>
+      ),
+      width: 80,
+      editable: true,
+      display: "flex",
+      renderCell(params) {
+        return params.row.side === "ask" ? (
+          <Typography
+            variant="h5"
+            sx={{
+              color:
+                Number(
+                  getProfitPercent(
+                    Number(params.row.price),
+                    Number(params.row.avg_buy_price)
+                  )
+                ) > 0
+                  ? theme.palette.error.main
+                  : theme.palette.warning.main,
+            }}
+          >
+            {getProfitPercent(
+              Number(params.row.price),
+              Number(params.row.avg_buy_price)
+            )}{" "}
+            <span style={{ color: "#8C8C8C" }}>%</span>
+          </Typography>
+        ) : (
+          <></>
+        );
+      },
+    },
+    {
+      field: "수익 금액",
+      renderHeader: () => (
+        <strong style={{ color: theme.palette.primary.contrastText }}>
+          수익 금액
+        </strong>
+      ),
+      width: 150,
+      editable: true,
+      display: "flex",
+      renderCell(params) {
+        return params.row.side === "ask" ? (
+          <Typography
+            variant="h5"
+            sx={{
+              color:
+                Number(
+                  getProfitPercent(
+                    Number(params.row.price),
+                    Number(params.row.avg_buy_price)
+                  )
+                ) > 0
+                  ? theme.palette.error.main
+                  : theme.palette.warning.main,
+            }}
+          >
+            {formatNumber(
+              Number(
+                getProfitKrw(
+                  Number(params.row.price),
+                  Number(params.row.avg_buy_price),
+                  Number(params.row.volume)
+                ).toFixed(0)
+              )
+            )}{" "}
+            <span style={{ color: "#8C8C8C" }}>KRW</span>
+          </Typography>
+        ) : (
+          <></>
+        );
+      },
+    },
+    {
+      field: "생성 시간",
+      flex: 1,
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
           생성 시간
         </strong>
       ),
-      // description: "This column has a value getter and is not sortable.",
       sortable: false,
-      flex: 1,
       valueGetter: (value, row) => formatDate(row.created_at),
     },
   ];
@@ -222,8 +394,30 @@ const ListScreen = () => {
     <Stack gap={2} flex={1}>
       <Stack flex={1}>
         <Paper elevation={3}>
-          <Stack>
-            <Stack flexDirection={"row"} gap={2} flex={1} p={2}>
+          <Stack p={2} gap={2}>
+            <Stack flexDirection={"row"} gap={2} flex={1}>
+              <Stack flexDirection={"row"} gap={1}>
+                <DatePicker
+                  label={"시작일"}
+                  format="YYYY-MM-DD"
+                  value={startDate}
+                  onChange={(newValue) => {
+                    if (newValue !== null) {
+                      setStartDate(newValue);
+                    }
+                  }}
+                />
+                <DatePicker
+                  label={"종료일"}
+                  value={endDate}
+                  format="YYYY-MM-DD"
+                  onChange={(newValue) => {
+                    if (newValue !== null) {
+                      setEndDate(newValue);
+                    }
+                  }}
+                />
+              </Stack>
               <Autocomplete
                 disablePortal
                 id="combo-box-side"
@@ -258,32 +452,56 @@ const ListScreen = () => {
                 }}
               />
             </Stack>
-            <Stack flexDirection={"row"} p={2} justifyContent={"space-between"}>
+            <Stack flexDirection={"row"} justifyContent={"space-between"}>
               <Stack flexDirection={"row"} gap={1}>
+                <TextField
+                  name="KRW"
+                  value={formatNumber(Number(state.profit.toFixed(0)))}
+                  label={"수익금"}
+                  inputMode="numeric"
+                  size="small"
+                  placeholder="KRW"
+                  sx={{
+                    width: 150,
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">원</InputAdornment>
+                    ),
+                  }}
+                />
                 <OutlinedInput
                   name="word"
                   value={word}
                   onChange={(e) => setWord(e.target.value)}
                   onKeyDown={handleKeyPress}
                   size="small"
-                  placeholder="Market"
+                  placeholder="코인명"
                 />
                 <ButtonGroup>
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     color="primary"
                     size="small"
                     onClick={getRows}
-                    startIcon={<SearchIcon color="primary" />}
+                    startIcon={
+                      <SearchIcon
+                        sx={{ color: theme.palette.primary.contrastText }}
+                      />
+                    }
                   >
                     <Typography variant="h4">검색</Typography>
                   </Button>
                   <Button
-                    variant="outlined"
+                    variant="contained"
                     color="primary"
                     size="small"
                     onClick={init}
-                    startIcon={<BlockIcon color="primary" />}
+                    startIcon={
+                      <BlockIcon
+                        sx={{ color: theme.palette.primary.contrastText }}
+                      />
+                    }
                   >
                     <Typography variant="h4">초기화</Typography>
                   </Button>
@@ -291,7 +509,7 @@ const ListScreen = () => {
               </Stack>
               <Stack flexDirection={"row"} gap={1}>
                 <Button
-                  variant="outlined"
+                  variant="contained"
                   color="primary"
                   size="small"
                   onClick={() => downloadFile(file1, "main1.jpg")}
@@ -310,6 +528,7 @@ const ListScreen = () => {
                   엑셀 업로드 {file?.name}
                   <input
                     type="file"
+                    ref={fileRef}
                     onChange={handleFileChange}
                     style={{
                       clip: "rect(0 0 0 0)",
@@ -323,36 +542,6 @@ const ListScreen = () => {
                       width: 1,
                     }}
                   />
-                </Button>
-                <Button
-                  variant="contained"
-                  size="small"
-                  startIcon={
-                    <AddIcon
-                      sx={{
-                        color: "white",
-                      }}
-                    />
-                  }
-                >
-                  <Typography variant="h4" color={"white"}>
-                    추가
-                  </Typography>
-                </Button>
-                <Button
-                  variant="contained"
-                  size="small"
-                  startIcon={
-                    <RemoveIcon
-                      sx={{
-                        color: "white",
-                      }}
-                    />
-                  }
-                >
-                  <Typography variant="h4" color={"white"}>
-                    삭제
-                  </Typography>
                 </Button>
               </Stack>
             </Stack>
@@ -377,6 +566,8 @@ const ListScreen = () => {
                 loading={loading}
                 // checkboxSelection
                 disableRowSelectionOnClick
+                disableColumnFilter
+                disableColumnSorting
                 localeText={{
                   MuiTablePagination: {
                     labelRowsPerPage: "페이지 행",

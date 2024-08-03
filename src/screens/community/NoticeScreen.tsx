@@ -156,31 +156,17 @@ const NoticeScreen = () => {
         </strong>
       ),
       width: 80,
-      // editable: true,
-      // headerAlign:'center',
-      // align:'center',
       valueGetter: (value, row) => row.notice_id,
     },
     {
       field: "제목",
-      width: 400,
+      width: 500,
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
           제목
         </strong>
       ),
-      // valueGetter: (value, row) => row.title,
-      renderCell(params) {
-        return (
-          <Button
-            variant="outlined"
-            color="info"
-            onClick={() => onClickNoticeRow(params.row)}
-          >
-            {params.row.title}
-          </Button>
-        );
-      },
+      valueGetter: (value, row) => row.title,
     },
 
     {
@@ -242,39 +228,30 @@ const NoticeScreen = () => {
       />
       <Stack flex={1}>
         <Paper elevation={3}>
-          <Stack>
-            <Stack flexDirection={"row"} gap={2} flex={1} p={2}>
-              <Stack>
-                <DatePicker
-                  label={"시작일"}
-                  // defaultValue={startDate}
-                  format="YYYY-MM-DD"
-                  value={startDate}
-                  onChange={(newValue) => {
-                    if (newValue !== null) {
-                      setStartDate(newValue);
-                    }
-                  }}
-                />
-              </Stack>
-              <Stack>
-                <DatePicker
-                  label={"종료일"}
-                  // defaultValue={endDate}
-                  value={endDate}
-                  format="YYYY-MM-DD"
-                  onChange={(newValue) => {
-                    if (newValue !== null) {
-                      setEndDate(newValue);
-                    }
-                  }}
-                  // slotProps={{
-                  //   textField: {
-                  //     helperText: "MM/DD/YYYY",
-                  //   },
-                  // }}
-                />
-              </Stack>
+          <Stack p={2} gap={1}>
+            <Stack flexDirection={"row"} gap={1}>
+              <DatePicker
+                label={"시작일"}
+                format="YYYY-MM-DD"
+                value={startDate}
+                onChange={(newValue) => {
+                  if (newValue !== null) {
+                    setStartDate(newValue);
+                  }
+                }}
+              />
+              <DatePicker
+                label={"종료일"}
+                value={endDate}
+                format="YYYY-MM-DD"
+                onChange={(newValue) => {
+                  if (newValue !== null) {
+                    setEndDate(newValue);
+                  }
+                }}
+              />
+            </Stack>
+            <Stack flexDirection={"row"} gap={2} flex={1}>
               <Stack flexDirection={"row"} flex={1}>
                 <OutlinedInput
                   name="word"
@@ -288,6 +265,36 @@ const NoticeScreen = () => {
               </Stack>
               <Stack flexDirection={"row"} justifyContent={"space-between"}>
                 <Stack flexDirection={"row"} gap={1}>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={getRows}
+                    startIcon={
+                      <SearchIcon
+                        sx={{
+                          color: "white",
+                        }}
+                      />
+                    }
+                  >
+                    <Typography variant="h4">검색</Typography>
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={init}
+                    startIcon={
+                      <BlockIcon
+                        sx={{
+                          color: "white",
+                        }}
+                      />
+                    }
+                  >
+                    <Typography variant="h4">초기화</Typography>
+                  </Button>
                   <Button
                     variant="contained"
                     size="medium"
@@ -304,24 +311,6 @@ const NoticeScreen = () => {
                     <Typography variant="h4" color={"white"}>
                       글 작성
                     </Typography>
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="info"
-                    size="small"
-                    onClick={getRows}
-                    startIcon={<SearchIcon color="info" />}
-                  >
-                    <Typography variant="h4">검색</Typography>
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="info"
-                    size="small"
-                    onClick={init}
-                    startIcon={<BlockIcon color="info" />}
-                  >
-                    <Typography variant="h4">초기화</Typography>
                   </Button>
                 </Stack>
               </Stack>
@@ -354,12 +343,15 @@ const NoticeScreen = () => {
                   labelRowsPerPage: "페이지 행",
                 },
               }}
+              disableColumnFilter
+              disableColumnSorting
               slots={{
                 columnSortedDescendingIcon: SortedDescendingIcon,
                 columnSortedAscendingIcon: SortedAscendingIcon,
                 columnUnsortedIcon: UnsortedIcon,
                 noRowsOverlay: CustomNoRowsOverlay,
               }}
+              onRowClick={(params) => onClickNoticeRow(params.row)}
               sx={{
                 "&.MuiDataGrid-root": {
                   border: "none",

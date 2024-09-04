@@ -1,9 +1,9 @@
 import {
   CssBaseline,
   PaletteMode,
+  Paper,
   Stack,
   ThemeProvider,
-  useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -14,19 +14,20 @@ import {
   Routes,
 } from "react-router-dom";
 import { SnackbarUtilsConfigurator } from "./components/CustomToast";
+import HeaderBar from "./components/HeaderBar";
 import NavBar from "./components/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { darkTheme, lightTheme } from "./config/theme";
+import NoticeScreen from "./screens/community/NoticeScreen";
 import ListScreen from "./screens/ListScreen";
 import LoginScreen from "./screens/LoginScreen";
 import MainScreen from "./screens/MainScreen";
 import MarketScreen from "./screens/MarketScreen";
+import SettingScreen from "./screens/SettingScreen";
 import { RootState } from "./store/reducer";
-import NoticeScreen from "./screens/community/NoticeScreen";
-import HeaderBar from "./components/HeaderBar";
 
 function App() {
-  const [mode, setMode] = useState<PaletteMode>("dark");
+  const [mode, setMode] = useState<PaletteMode>("light");
   const drawerWidth = 220;
   const { id } = useSelector((state: RootState) => state.userReducer);
   const isAuthorized = id !== "";
@@ -40,25 +41,16 @@ function App() {
       <CssBaseline />
       <SnackbarUtilsConfigurator />
       <Router>
-        <Stack>
-          <Stack>
+        <Stack display={"flex"} flexDirection={"row"} flex={1}>
+          <Stack width={isAuthorized ? drawerWidth : 0}>
+            {isAuthorized && <NavBar drawerWidth={drawerWidth} />}
+            {/* <Paper sx={{ width: drawerWidth }}>asd</Paper> */}
+          </Stack>
+          <Stack flex={1}>
             {isAuthorized && (
               <HeaderBar mode={mode} toggleColorMode={toggleColorMode} />
             )}
-          </Stack>
-          <Stack
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-            }}
-          >
-            {isAuthorized && <NavBar drawerWidth={drawerWidth} />}
-            <Stack
-              flex={1}
-              height={isAuthorized ? "" : "100vh"}
-              width={"88vw"}
-              p={isAuthorized ? 2 : 0}
-            >
+            <Stack flex={1}>
               <Routes>
                 <Route
                   path="/login"
@@ -95,6 +87,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <NoticeScreen />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/setting"
+                  element={
+                    <ProtectedRoute>
+                      <SettingScreen />
                     </ProtectedRoute>
                   }
                 />

@@ -1,37 +1,34 @@
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import CodeIcon from "@mui/icons-material/Code";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import ListIcon from "@mui/icons-material/List";
+import GppGoodIcon from "@mui/icons-material/GppGood";
+import GroupsIcon from "@mui/icons-material/Groups";
+import HistoryIcon from "@mui/icons-material/History";
+import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
+import StoreOutlinedIcon from "@mui/icons-material/StoreOutlined";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import {
-  Avatar,
   Box,
-  Button,
   Collapse,
-  Divider,
   Drawer,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Paper,
   Stack,
   Typography,
   useTheme,
 } from "@mui/material";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
-import { useLocation, useNavigate } from "react-router-dom";
-import { RootState } from "../store/reducer";
-import { useSelector } from "react-redux";
-import { useAppDispatch } from "../store";
-import userSlice from "../slices/user";
-import ListAltOutlinedIcon from "@mui/icons-material/ListAltOutlined";
 import { useState } from "react";
-import { ExpandLess, ExpandMore, StarBorder } from "@mui/icons-material";
-import CodeIcon from "@mui/icons-material/Code";
-import GppGoodIcon from "@mui/icons-material/GppGood";
-import GroupsIcon from "@mui/icons-material/Groups";
-import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
+import { useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import userSlice from "../slices/user";
+import { useAppDispatch } from "../store";
+import { RootState } from "../store/reducer";
+import SettingsIcon from "@mui/icons-material/Settings";
+import { grey } from "@mui/material/colors";
 
 interface Props {
   drawerWidth: number | string;
@@ -47,15 +44,18 @@ const MenuList: MenuType[] = [
   { title: "Dashboard", link: "/", image: "Dashboard" },
   { title: "시장", link: "/market", image: "Mail" },
   { title: "주문 내역", link: "/list", image: "List" },
+  { title: "설정", link: "/setting", image: "Setting" },
 ];
 
 const getMenuImage = (menu: MenuType) => {
   if (menu.image === "Dashboard") {
     return <DashboardIcon />;
   } else if (menu.image === "Mail") {
-    return <AccessTimeIcon />;
+    return <StoreOutlinedIcon />;
   } else if (menu.image === "List") {
-    return <ListAltOutlinedIcon />;
+    return <HistoryIcon />;
+  } else if (menu.image === "Setting") {
+    return <SettingsIcon />;
   }
   return <></>;
 };
@@ -103,20 +103,32 @@ const NavBar = ({ drawerWidth }: Props) => {
       }}
       PaperProps={{
         sx: {
-          backgroundColor: theme.palette.background.default,
+          backgroundColor:
+            theme.palette.mode === "light" ? "#f4f3f8" : "#24292e",
           borderWidth: 0,
+          borderRightWidth: 3,
+          borderRightColor:
+            theme.palette.mode === "light" ? "#e4e4e5" : "#1f2428",
           // p: 2,
         },
       }}
     >
       <Box>
-        <Stack justifyContent={"center"} alignItems={"center"} height={65}>
-          <Typography variant="h3">LOGO</Typography>
+        <Stack
+          // justifyContent={"center"}
+          alignItems={"center"}
+          height={65}
+          flexDirection={"row"}
+          gap={1}
+          p={2}
+        >
+          <Typography variant="h3">Ats</Typography>
         </Stack>
         <List
           sx={{
-            paddingTop: 0,
-            paddingBottom: 0,
+            // paddingTop: 0,
+            // paddingBottom: 0,
+            pl: 2,
           }}
         >
           {MenuList.map((item, index) => (
@@ -124,13 +136,11 @@ const NavBar = ({ drawerWidth }: Props) => {
               <ListItemButton
                 onClick={() => onClickMenu(item.link)}
                 sx={{
-                  // backgroundColor:
-                  //   location.pathname === item.link
-                  //     ? theme.palette.primary.main
-                  //     : theme.palette.background.paper,
-                  borderTopRightRadius: 10,
-                  borderBottomRightRadius: 10,
-                  // marginTop:1,
+                  borderRight: location.pathname === item.link ? 3 : 0,
+                  borderRightColor:
+                    location.pathname === item.link
+                      ? theme.palette.primary.main
+                      : theme.palette.text.secondary,
                   marginBottom: 1,
                 }}
               >
@@ -138,7 +148,7 @@ const NavBar = ({ drawerWidth }: Props) => {
                   sx={{
                     color:
                       location.pathname === item.link
-                        ? theme.palette.text.primary
+                        ? theme.palette.primary.main
                         : theme.palette.text.secondary,
                   }}
                 >
@@ -149,7 +159,7 @@ const NavBar = ({ drawerWidth }: Props) => {
                   sx={{
                     color:
                       location.pathname === item.link
-                        ? theme.palette.text.primary
+                        ? theme.palette.primary.main
                         : theme.palette.text.secondary,
                   }}
                 />
@@ -159,8 +169,7 @@ const NavBar = ({ drawerWidth }: Props) => {
         </List>
         <List
           sx={{
-            paddingTop: 0,
-            paddingBottom: 0,
+            pl: 2,
           }}
         >
           <ListItemButton onClick={() => handleClick("community")}>
@@ -173,14 +182,18 @@ const NavBar = ({ drawerWidth }: Props) => {
           <Collapse in={openCommunity} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               <ListItemButton
-                sx={{ pl: 4 }}
+                sx={{
+                  pl: 4,
+                  borderRight: location.pathname === "/notice" ? 3 : 0,
+                  marginBottom: 1,
+                }}
                 onClick={() => onClickMenu("/notice")}
               >
                 <ListItemIcon
                   sx={{
                     color:
                       location.pathname === "/notice"
-                        ? theme.palette.text.primary
+                        ? theme.palette.primary.main
                         : theme.palette.text.secondary,
                   }}
                 >
@@ -191,7 +204,7 @@ const NavBar = ({ drawerWidth }: Props) => {
                   sx={{
                     color:
                       location.pathname === "/notice"
-                        ? theme.palette.text.primary
+                        ? theme.palette.primary.main
                         : theme.palette.text.secondary,
                   }}
                 />
@@ -199,11 +212,11 @@ const NavBar = ({ drawerWidth }: Props) => {
             </List>
             <List component="div" disablePadding>
               <ListItemButton sx={{ pl: 4 }}>
-              <ListItemIcon
+                <ListItemIcon
                   sx={{
                     color:
                       location.pathname === "/board"
-                        ? theme.palette.text.primary
+                        ? theme.palette.primary.main
                         : theme.palette.text.secondary,
                   }}
                 >
@@ -224,8 +237,7 @@ const NavBar = ({ drawerWidth }: Props) => {
         </List>
         <List
           sx={{
-            paddingTop: 0,
-            paddingBottom: 0,
+            pl: 2,
           }}
         >
           <ListItemButton onClick={() => handleClick("admin")}>

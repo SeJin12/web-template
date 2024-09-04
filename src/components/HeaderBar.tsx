@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   Button,
+  Divider,
   IconButton,
   PaletteMode,
   Stack,
@@ -15,6 +16,8 @@ import userSlice from "../slices/user";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import WbSunnyOutlinedIcon from "@mui/icons-material/WbSunnyOutlined";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import { grey } from "@mui/material/colors";
 
 interface Props {
   mode: PaletteMode;
@@ -34,37 +37,59 @@ const HeaderBar = ({ mode, toggleColorMode }: Props) => {
     <Stack
       bgcolor={theme.palette.background.default}
       height={65}
-      //   zIndex={10001}
       flexDirection={"row"}
-      justifyContent={"end"}
-      gap={2}
-      pr={2}
+      justifyContent={"space-between"}
+      pr={3}
+      pl={1}
     >
       <Stack justifyContent={"center"}>
-        <IconButton aria-label="delete" size="medium" onClick={toggleColorMode}>
-          {mode === "dark" ? (
-            <DarkModeOutlinedIcon fontSize="inherit" />
-          ) : (
-            <WbSunnyOutlinedIcon fontSize="inherit" />
-          )}
+        <IconButton aria-label="delete" size="medium">
+          <KeyboardDoubleArrowLeftIcon
+            fontSize="inherit"
+            sx={{ color: theme.palette.text.primary }}
+          />
         </IconButton>
       </Stack>
-      <Stack justifyContent={"center"}>
-        <IconButton aria-label="delete" onClick={onClickLogout} size="medium">
-          <ExitToAppOutlinedIcon fontSize="inherit" />
-        </IconButton>
-      </Stack>
-      <Stack flexDirection={"row"} justifyContent={"space-evenly"} gap={1}>
-        <Box alignContent={"center"}>
-          <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
-            <Typography color={theme.palette.primary.contrastText}>
-              {id.substring(0, 2).toUpperCase()}
-            </Typography>
-          </Avatar>
-        </Box>
-        <Box alignContent={"center"} sx={{}}>
-          {name}
-        </Box>
+      <Stack flexDirection={"row"} gap={1}>
+        <Stack justifyContent={"center"}>
+          <IconButton
+            aria-label="delete"
+            size="medium"
+            onClick={toggleColorMode}
+          >
+            {mode === "dark" ? (
+              <DarkModeOutlinedIcon
+                fontSize="inherit"
+                sx={{ color: theme.palette.text.primary }}
+              />
+            ) : (
+              <WbSunnyOutlinedIcon
+                fontSize="inherit"
+                sx={{ color: theme.palette.text.primary }}
+              />
+            )}
+          </IconButton>
+        </Stack>
+        <Stack justifyContent={"center"}>
+          <IconButton aria-label="delete" onClick={onClickLogout} size="medium">
+            <ExitToAppOutlinedIcon
+              fontSize="inherit"
+              sx={{ color: theme.palette.text.primary }}
+            />
+          </IconButton>
+        </Stack>
+        <Stack flexDirection={"row"} justifyContent={"space-evenly"} gap={1}>
+          <Box alignContent={"center"}>
+            <Avatar sx={{ bgcolor: theme.palette.primary.main }}>
+              <Typography color={theme.palette.primary.contrastText}>
+                {id.substring(0, 2).toUpperCase()}
+              </Typography>
+            </Avatar>
+          </Box>
+          <Box alignContent={"center"} sx={{}}>
+            {name}
+          </Box>
+        </Stack>
       </Stack>
     </Stack>
   );

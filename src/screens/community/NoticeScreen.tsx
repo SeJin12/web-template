@@ -24,6 +24,7 @@ import { NoticeType } from "../../types/NoticeType";
 import { formatDate } from "../../utils/StringUtil";
 import NoticeAddPopup from "../../components/notice/NoticeAddPopup";
 import NoticeViewPopup from "../../components/notice/NoticeViewPopup";
+import { errorHandler } from "../../utils/apiUtil";
 
 export function SortedDescendingIcon() {
   return (
@@ -130,11 +131,7 @@ const NoticeScreen = () => {
         total: data.length > 0 ? data[0].total_count : 0,
       });
     } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("통신 오류");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
+      errorHandler(error)
     } finally {
       setLoading(false);
     }

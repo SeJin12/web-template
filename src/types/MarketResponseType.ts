@@ -10,11 +10,11 @@ export type MarketResponseType = {
     GLOBAL_PRICE_DIFFERENCES: number
     PRICE_FLUCTUATIONS: number
     TRADING_VOLUME_SOARING: number
-    ask_yn: number
+    ask_yn: boolean
     avg_buy_price: string
     avg_buy_price_modified: boolean
     balance: string
-    bid_yn: number
+    bid_yn: boolean;
     bookmark_yn: number
     currency: string
     locked: string

@@ -11,16 +11,19 @@ export const SnackbarUtilsConfigurator: React.FC = () => {
 // toast 객체에 다양한 타입의 메시지 표시 메서드를 추가합니다.
 export const Toast = {
     success(msg: string) {
-        useSnackbarRef.enqueueSnackbar(msg, { variant: 'success', anchorOrigin: { vertical: 'top', horizontal: 'center' }});
+        useSnackbarRef.enqueueSnackbar(msg, {
+            variant: 'success', anchorOrigin: { vertical: 'top', horizontal: 'center' }, autoHideDuration: 1000
+            , disableWindowBlurListener: true
+        });
     },
     error(msg: string) {
-        useSnackbarRef.enqueueSnackbar(msg, { variant: 'error', anchorOrigin: { vertical: 'top', horizontal: 'center' } });
+        useSnackbarRef.enqueueSnackbar(msg, { variant: 'error', anchorOrigin: { vertical: 'top', horizontal: 'center' }, autoHideDuration: 1000, disableWindowBlurListener: true });
     },
     info(msg: string) {
-        useSnackbarRef.enqueueSnackbar(msg, { variant: 'info', anchorOrigin: { vertical: 'top', horizontal: 'center' } });
+        useSnackbarRef.enqueueSnackbar(msg, { variant: 'info', anchorOrigin: { vertical: 'top', horizontal: 'center' }, autoHideDuration: 1000, disableWindowBlurListener: true });
     },
     warning(msg: string) {
-        useSnackbarRef.enqueueSnackbar(msg, { variant: 'warning', anchorOrigin: { vertical: 'top', horizontal: 'center' } });
+        useSnackbarRef.enqueueSnackbar(msg, { variant: 'warning', anchorOrigin: { vertical: 'top', horizontal: 'center' }, autoHideDuration: 1000, disableWindowBlurListener: true });
     },
     toast(msg: string, variant: VariantType = 'default') {
         useSnackbarRef.enqueueSnackbar(msg, { variant });

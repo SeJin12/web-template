@@ -20,6 +20,7 @@ import { Toast } from "../CustomToast";
 import { DataGrid, GridColDef, GridRowHeightParams } from "@mui/x-data-grid";
 import { formatDate } from "../../utils/StringUtil";
 import ClearIcon from "@mui/icons-material/Clear";
+import { errorHandler } from "../../utils/apiUtil";
 
 interface Props {
   open: boolean;
@@ -63,11 +64,7 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
       });
       setComment("");
     } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("통신 오류");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
+      errorHandler(error)
     }
   };
 
@@ -80,11 +77,7 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
 
       getRows();
     } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("통신 오류");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
+      errorHandler(error)
     }
   };
 
@@ -168,11 +161,7 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
         notice_id: notice.notice_id,
       });
     } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("통신 오류");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
+      errorHandler(error)
     }
   };
 
@@ -185,11 +174,7 @@ export default function NoticeViewPopup({ open, notice, onCancel }: Props) {
 
       Toast.success("글 작성 완료했습니다");
     } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("통신 오류");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
+      errorHandler(error)
     } finally {
     }
   };

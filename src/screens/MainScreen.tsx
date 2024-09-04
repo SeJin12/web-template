@@ -1,34 +1,23 @@
-import { Grid, Stack, useTheme } from "@mui/material";
+import { Stack, useTheme } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
-import { BarChart } from "@mui/x-charts/BarChart";
+import StateStatsChart from "../components/dashboard/StateStatsChart";
+import store from "../store";
 
 const MainScreen = () => {
   const theme = useTheme();
+  const { id } = store.getState().userReducer;
 
   return (
     <Stack
       sx={{
         backgroundColor: theme.palette.background.default,
-        height: "100vh",
       }}
     >
-      <Grid container spacing={2}>
-        <Grid item xs={6}></Grid>
-        <Grid item xs={6}></Grid>
-        <Grid item xs={6}>
-          <BarChart
-            series={[
-              { data: [35, 44, 24, 34] },
-              { data: [51, 6, 49, 30] },
-              { data: [15, 25, 30, 50] },
-              { data: [60, 50, 15, 25] },
-            ]}
-            height={290}
-            xAxis={[{ data: ["Q1", "Q2", "Q3", "Q4"], scaleType: "band" }]}
-            margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-          />
-        </Grid>
-        <Grid item xs={6}>
+      <Stack flexDirection={"row"}>
+        <Stack flex={1}>
+          <StateStatsChart id={id} />
+        </Stack>
+        <Stack flex={1}>
           <LineChart
             xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
             series={[
@@ -39,8 +28,8 @@ const MainScreen = () => {
             width={500}
             height={300}
           />
-        </Grid>
-      </Grid>
+        </Stack>
+      </Stack>
     </Stack>
   );
 };

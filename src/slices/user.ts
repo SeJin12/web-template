@@ -5,6 +5,8 @@ const initialState = {
     name: '',
     accessToken: '',
     refreshToken: '',
+    accessKey: '',
+    secretKey: ''
 };
 
 const userSlice = createSlice({
@@ -16,12 +18,16 @@ const userSlice = createSlice({
             state.name = action.payload.name;
             state.accessToken = action.payload.accessToken;
             state.refreshToken = action.payload.refreshToken;
+            state.accessKey = action.payload.accessKey;
+            state.secretKey = action.payload.secretKey;
         },
         setUserLogout(state) {
             state.id = "";
             state.name = "";
             state.accessToken = "";
             state.refreshToken = "";
+            state.accessKey = "";
+            state.secretKey = "";
         }
     },
 });

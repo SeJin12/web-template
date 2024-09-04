@@ -31,6 +31,9 @@ import { formatDate, formatNumber, getStateName } from "../utils/StringUtil";
 import { getProfitKrw, getProfitPercent } from "../utils/convertUtil";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
+import { errorHandler } from "../utils/apiUtil";
+import FiberManualRecordOutlinedIcon from "@mui/icons-material/FiberManualRecordOutlined";
+import { grey } from "@mui/material/colors";
 
 interface AutoCompleteType {
   label: string;
@@ -185,11 +188,7 @@ const ListScreen = () => {
         total: data.CNT,
       });
     } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("통신 오류");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
+      errorHandler(error);
     } finally {
       setLoading(false);
     }
@@ -206,12 +205,12 @@ const ListScreen = () => {
           코인명
         </strong>
       ),
-      width: 150,
+      width: 200,
       editable: true,
       display: "flex",
       renderCell(params) {
         return (
-          <Stack pt={1} pb={1} flexDirection={"row"} gap={1}>
+          <Stack flexDirection={"row"} gap={1}>
             <Box display={"flex"}>
               <img
                 src={`https://static.upbit.com/logos/${params.row.market.substring(
@@ -256,11 +255,46 @@ const ListScreen = () => {
       type: "string",
       width: 150,
       editable: false,
-      valueGetter: (value, row) => getStateName(row.state),
+      display: "flex",
+      renderCell(params) {
+        const state = params.row.state;
+        const stateName = getStateName(params.row.state);
+
+        if (state !== "")
+          return (
+            <Chip
+              variant="outlined"
+              label={stateName}
+              size="small"
+              color={
+                state === "wait"
+                  ? "success"
+                  : state === "done"
+                  ? "primary"
+                  : "error"
+              }
+              // sx={{
+              //   color: theme.palette.text.primary,
+              // }}
+              icon={
+                <FiberManualRecordOutlinedIcon
+                  fontSize="large"
+                  color={
+                    state === "wait"
+                      ? "success"
+                      : state === "done"
+                      ? "primary"
+                      : "error"
+                  }
+                />
+              }
+            />
+          );
+      },
     },
     {
       field: "주문가",
-      width: 150,
+      // width: 150,
       renderHeader: () => (
         <strong style={{ color: theme.palette.primary.contrastText }}>
           주문가 (원)
@@ -284,7 +318,7 @@ const ListScreen = () => {
           매수 평균가
         </strong>
       ),
-      width: 150,
+      // width: 150,
       editable: true,
       display: "flex",
       renderCell(params) {
@@ -305,7 +339,7 @@ const ListScreen = () => {
           수익률
         </strong>
       ),
-      width: 80,
+      // width: 80,
       editable: true,
       display: "flex",
       renderCell(params) {
@@ -342,7 +376,7 @@ const ListScreen = () => {
           수익 금액
         </strong>
       ),
-      width: 150,
+      // width: 150,
       editable: true,
       display: "flex",
       renderCell(params) {
@@ -391,201 +425,193 @@ const ListScreen = () => {
   ];
 
   return (
-    <Stack gap={2} flex={1}>
-      <Stack flex={1}>
-        <Paper elevation={3}>
-          <Stack p={2} gap={2}>
-            <Stack flexDirection={"row"} gap={2} flex={1}>
-              <Stack flexDirection={"row"} gap={1}>
-                <DatePicker
-                  label={"시작일"}
-                  format="YYYY-MM-DD"
-                  value={startDate}
-                  onChange={(newValue) => {
-                    if (newValue !== null) {
-                      setStartDate(newValue);
-                    }
-                  }}
-                />
-                <DatePicker
-                  label={"종료일"}
-                  value={endDate}
-                  format="YYYY-MM-DD"
-                  onChange={(newValue) => {
-                    if (newValue !== null) {
-                      setEndDate(newValue);
-                    }
-                  }}
-                />
-              </Stack>
-              <Autocomplete
-                disablePortal
-                id="combo-box-side"
-                value={side}
-                options={sides}
-                getOptionLabel={(option) => option.label}
-                sx={{ flex: 1 }}
-                renderInput={(params) => <TextField {...params} label="타입" />}
-                onChange={(event, value) => {
-                  setSide(value);
-                }}
-                isOptionEqualToValue={(option, value) => {
-                  return option.value === value.value;
-                }}
-              />
-              <Autocomplete
-                disablePortal
-                id="combo-box-order-state"
-                value={orderState}
-                options={states}
-                sx={{ flex: 1 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="주문 상태" />
-                )}
-                onChange={(event, value) => {
-                  if (value !== null && value !== undefined) {
-                    setOrderState(value);
-                  }
-                }}
-                isOptionEqualToValue={(option, value) => {
-                  return option.value === value.value;
-                }}
-              />
-            </Stack>
-            <Stack flexDirection={"row"} justifyContent={"space-between"}>
-              <Stack flexDirection={"row"} gap={1}>
-                <TextField
-                  name="KRW"
-                  value={formatNumber(Number(state.profit.toFixed(0)))}
-                  label={"수익금"}
-                  inputMode="numeric"
-                  size="small"
-                  placeholder="KRW"
-                  sx={{
-                    width: 150,
-                  }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">원</InputAdornment>
-                    ),
-                  }}
-                />
-                <OutlinedInput
-                  name="word"
-                  value={word}
-                  onChange={(e) => setWord(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  size="small"
-                  placeholder="코인명"
-                />
-                <ButtonGroup>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    onClick={getRows}
-                    startIcon={
-                      <SearchIcon
-                        sx={{ color: theme.palette.primary.contrastText }}
-                      />
-                    }
-                  >
-                    <Typography variant="h4">검색</Typography>
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    onClick={init}
-                    startIcon={
-                      <BlockIcon
-                        sx={{ color: theme.palette.primary.contrastText }}
-                      />
-                    }
-                  >
-                    <Typography variant="h4">초기화</Typography>
-                  </Button>
-                </ButtonGroup>
-              </Stack>
-              <Stack flexDirection={"row"} gap={1}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  onClick={() => downloadFile(file1, "main1.jpg")}
-                  startIcon={<CloudDownloadIcon />}
-                >
-                  <Typography variant="h4">엑셀 다운로드</Typography>
-                </Button>
-
-                <Button
-                  component="label"
-                  role={undefined}
-                  variant="contained"
-                  tabIndex={-1}
-                  startIcon={<CloudUploadIcon />}
-                >
-                  엑셀 업로드 {file?.name}
-                  <input
-                    type="file"
-                    ref={fileRef}
-                    onChange={handleFileChange}
-                    style={{
-                      clip: "rect(0 0 0 0)",
-                      clipPath: "inset(50%)",
-                      height: 1,
-                      overflow: "hidden",
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      whiteSpace: "nowrap",
-                      width: 1,
-                    }}
-                  />
-                </Button>
-              </Stack>
-            </Stack>
-          </Stack>
-          <Stack flex={1} sx={{}}>
-            <Box
-              sx={{
-                flex: 1,
+    <Stack p={2} gap={2} mt={2}>
+      <Stack gap={2}>
+        <Stack flexDirection={"row"} gap={1} flex={1}>
+          <Stack flexDirection={"row"} gap={1}>
+            <DatePicker
+              label={"시작일"}
+              format="YYYY-MM-DD"
+              value={startDate}
+              onChange={(newValue) => {
+                if (newValue !== null) {
+                  setStartDate(newValue);
+                }
               }}
+            />
+            <DatePicker
+              label={"종료일"}
+              value={endDate}
+              format="YYYY-MM-DD"
+              onChange={(newValue) => {
+                if (newValue !== null) {
+                  setEndDate(newValue);
+                }
+              }}
+            />
+          </Stack>
+          <Autocomplete
+            disablePortal
+            id="combo-box-side"
+            value={side}
+            options={sides}
+            getOptionLabel={(option) => option.label}
+            sx={{ flex: 1 }}
+            renderInput={(params) => <TextField {...params} label="타입" />}
+            onChange={(event, value) => {
+              setSide(value);
+            }}
+            isOptionEqualToValue={(option, value) => {
+              return option.value === value.value;
+            }}
+          />
+          <Autocomplete
+            disablePortal
+            id="combo-box-order-state"
+            value={orderState}
+            options={states}
+            sx={{ flex: 1 }}
+            renderInput={(params) => (
+              <TextField {...params} label="주문 상태" />
+            )}
+            onChange={(event, value) => {
+              if (value !== null && value !== undefined) {
+                setOrderState(value);
+              }
+            }}
+            isOptionEqualToValue={(option, value) => {
+              return option.value === value.value;
+            }}
+          />
+        </Stack>
+        <Stack flexDirection={"row"} justifyContent={"space-between"}>
+          <Stack flexDirection={"row"} gap={1}>
+            <TextField
+              name="KRW"
+              value={formatNumber(Number(state.profit.toFixed(0)))}
+              label={"수익금"}
+              inputMode="numeric"
+              size="small"
+              placeholder="KRW"
+              sx={{
+                width: 150,
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">원</InputAdornment>
+                ),
+              }}
+            />
+            <OutlinedInput
+              name="word"
+              value={word}
+              onChange={(e) => setWord(e.target.value)}
+              onKeyDown={handleKeyPress}
+              size="small"
+              placeholder="코인명"
+            />
+            <ButtonGroup>
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={getRows}
+                startIcon={
+                  <SearchIcon
+                    sx={{ color: theme.palette.primary.contrastText }}
+                  />
+                }
+              >
+                <Typography variant="h4">검색</Typography>
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={init}
+                startIcon={
+                  <BlockIcon
+                    sx={{ color: theme.palette.primary.contrastText }}
+                  />
+                }
+              >
+                <Typography variant="h4">초기화</Typography>
+              </Button>
+            </ButtonGroup>
+          </Stack>
+          <Stack flexDirection={"row"} gap={1}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => downloadFile(file1, "main1.jpg")}
+              startIcon={<CloudDownloadIcon />}
             >
-              <DataGrid
-                rows={state.rows}
-                rowCount={state.total}
-                columns={columns}
-                autoHeight
-                getRowId={(row) => row.uuid}
-                pagination
-                paginationMode="server"
-                pageSizeOptions={[5, 10, 30]}
-                paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
-                loading={loading}
-                // checkboxSelection
-                disableRowSelectionOnClick
-                disableColumnFilter
-                disableColumnSorting
-                localeText={{
-                  MuiTablePagination: {
-                    labelRowsPerPage: "페이지 행",
-                  },
-                }}
-                sx={{
-                  "&.MuiDataGrid-root": {
-                    border: "none",
-                    // backgroundColor: theme.palette.background.paper,
-                  },
-                  "& .MuiDataGrid-columnHeader": {
-                    backgroundColor: theme.palette.primary.light,
-                  },
+              <Typography variant="h4">엑셀 다운로드</Typography>
+            </Button>
+
+            <Button
+              component="label"
+              role={undefined}
+              variant="contained"
+              tabIndex={-1}
+              startIcon={<CloudUploadIcon />}
+            >
+              엑셀 업로드 {file?.name}
+              <input
+                type="file"
+                ref={fileRef}
+                onChange={handleFileChange}
+                style={{
+                  clip: "rect(0 0 0 0)",
+                  clipPath: "inset(50%)",
+                  height: 1,
+                  overflow: "hidden",
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  whiteSpace: "nowrap",
+                  width: 1,
                 }}
               />
-            </Box>
+            </Button>
           </Stack>
-        </Paper>
+        </Stack>
+      </Stack>
+      <Stack width={"100%"}>
+        <DataGrid
+          style={{ width: "100%" }}
+          rows={state.rows}
+          rowCount={state.total}
+          columns={columns}
+          autoHeight
+          getRowId={(row) => row.uuid}
+          pagination
+          paginationMode="server"
+          pageSizeOptions={[5, 10]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          loading={loading}
+          // checkboxSelection
+          disableRowSelectionOnClick
+          disableColumnFilter
+          disableColumnSorting
+          // disableColumnResize
+          localeText={{
+            MuiTablePagination: {
+              labelRowsPerPage: "페이지 행",
+            },
+          }}
+          sx={{
+            "&.MuiDataGrid-root": {
+              border: "none",
+              backgroundColor: theme.palette.background.default,
+            },
+            "& .MuiDataGrid-columnHeader": {
+              backgroundColor: theme.palette.primary.light,
+            },
+          }}
+        />
       </Stack>
     </Stack>
   );

@@ -18,6 +18,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { Toast } from "../CustomToast";
 import axiosInstance from "../../config/api";
 import { isAxiosError } from "axios";
+import { errorHandler } from "../../utils/apiUtil";
 
 interface Props {
   open: boolean;
@@ -62,11 +63,7 @@ export default function BoardAddPopup({ open, onSubmit, onCancel }: Props) {
       onSubmit();
       Toast.success("글 작성 완료했습니다");
     } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("통신 오류");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
+      errorHandler(error);
     } finally {
     }
   };

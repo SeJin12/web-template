@@ -24,6 +24,7 @@ import { isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../config/api";
 import { Toast } from "../CustomToast";
+import { errorHandler } from "../../utils/apiUtil";
 
 interface Props {
   open: boolean;
@@ -70,11 +71,7 @@ export default function NoticeAddPopup({ open, onSubmit, onCancel }: Props) {
       onSubmit();
       Toast.success("글 작성 완료했습니다");
     } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("통신 오류");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
+      errorHandler(error)
     } finally {
     }
   };

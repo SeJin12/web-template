@@ -50,9 +50,11 @@ axiosInstance.interceptors.response.use(
                     id: state.userReducer.id,
                     name: state.userReducer.name,
                     accessToken: newAccessToken,
-                    refreshToken: newRefreshToken
+                    refreshToken: newRefreshToken,
+                    accessKey: state.userReducer.accessKey,
+                    secretKey: state.userReducer.secretKey,
                 }));
-                
+
                 // 새로운 토큰을 사용하여 원래의 요청을 다시 시도합니다.
                 originalRequest.headers.Authorization = newAccessToken;
                 return axiosInstance(originalRequest);

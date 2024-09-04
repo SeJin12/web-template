@@ -1,4 +1,4 @@
-import { blue, orange, red, yellow } from '@mui/material/colors';
+import { blue, deepOrange, grey, indigo, orange, red, yellow } from '@mui/material/colors';
 import { createTheme } from '@mui/material/styles';
 
 const lightTheme = createTheme({
@@ -19,7 +19,7 @@ const lightTheme = createTheme({
             main: red[500]
         },
         warning: {
-            main: orange[500]
+            main: indigo[600]
         },
         background: {
             default: '#ffffff', // f4f5fa
@@ -43,7 +43,7 @@ const lightTheme = createTheme({
             lineHeight: 1.3,
         },
         h3: {
-            fontSize: '0.9rem',
+            fontSize: '1.2rem',
             fontWeight: 'bold',
             lineHeight: 1.4,
         },
@@ -97,7 +97,8 @@ const lightTheme = createTheme({
         MuiButton: {
             styleOverrides: {
                 root: {
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    borderRadius: '12px'
                 },
             },
         },
@@ -108,7 +109,7 @@ const darkTheme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: blue[900],
+            main: blue[600],
             contrastText: '#ffffff'
         },
         secondary: {
@@ -124,7 +125,7 @@ const darkTheme = createTheme({
             main: yellow[500]
         },
         background: {
-            default: '#101013',
+            default: '#24292e',
             paper: '#3c3c47'
         },
         text: {
@@ -133,7 +134,7 @@ const darkTheme = createTheme({
         },
     },
     typography: {
-        fontFamily: 'Arial, sans-serif',
+        fontFamily: 'malgun, "GmarketSansTTFMedium",Arial, sans-serif',
         h1: {
             fontSize: '2.5rem',
             fontWeight: 'bold',
@@ -145,7 +146,7 @@ const darkTheme = createTheme({
             lineHeight: 1.3,
         },
         h3: {
-            fontSize: '0.9rem',
+            fontSize: '1.2rem',
             fontWeight: 'bold',
             lineHeight: 1.4,
         },
@@ -154,12 +155,10 @@ const darkTheme = createTheme({
             lineHeight: 1.5,
         },
         h5: {
-            fontSize: '0.8rem',
-            fontWeight: 'bold',
-            lineHeight: 1.6,
+            fontSize: '0.9rem',
         },
         h6: {
-            fontSize: '0.8rem',
+            fontSize: '0.9rem',
         },
         body1: {
             fontSize: '1rem',

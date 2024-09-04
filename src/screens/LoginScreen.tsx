@@ -13,6 +13,7 @@ import { Toast } from "../components/CustomToast";
 import axiosInstance from "../config/api";
 import userSlice from "../slices/user";
 import { useAppDispatch } from "../store";
+import { errorHandler } from "../utils/apiUtil";
 
 const LoginScreen = () => {
   const theme = useTheme();
@@ -41,22 +42,22 @@ const LoginScreen = () => {
         NAME: string;
         ACCESS_TOKEN: string;
         REFRESH_TOKEN: string;
+        ACCESS_KEY: string;
+        SECRET_KEY: string;
       } = response.data;
-
+      
       dispatch(
         userSlice.actions.setUserLogin({
           id: data.ID,
           name: data.NAME,
           accessToken: data.ACCESS_TOKEN,
           refreshToken: data.REFRESH_TOKEN,
+          accessKey: data.ACCESS_KEY,
+          secretKey: data.SECRET_KEY,
         })
       );
     } catch (error) {
-      if (isAxiosError(error)) {
-        Toast.warning("로그인에 실패했습니다");
-      } else {
-        Toast.error("예상치 못한 오류 발생");
-      }
+      errorHandler(error);
     }
   };
 
@@ -64,7 +65,7 @@ const LoginScreen = () => {
     <Stack
       sx={{
         flexDirection: "row",
-        flex: 1,
+        height:'100vh'
       }}
     >
       <Box
@@ -94,13 +95,13 @@ const LoginScreen = () => {
         <Stack gap={2}>
           <TextField
             inputRef={idRef}
-            id="outlined-basic"
+            id="outlined-id"
             label="ID"
             variant="outlined"
           />
           <TextField
             inputRef={passwordRef}
-            id="outlined-basic"
+            id="outlined-password"
             label="Password"
             variant="outlined"
             type="password"

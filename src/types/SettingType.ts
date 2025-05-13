@@ -8,6 +8,7 @@ export type SettingBidType = {
     BID_CANDLE_UNIT: number;
     BID_CANDLE_COUNT: number;
     BID_UNDER_TICK: number;
+    DROP_PER: number;
 }
 
 export type SettingAskType = {

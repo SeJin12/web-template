@@ -174,53 +174,73 @@ const MarketScreen = () => {
   //   }
   // }, [accounts]);
 
+
   useEffect(() => {
-    if (state.rows.length > 0) {
-      if (!ws.current) {
-        ws.current = new WebSocket("wss://api.upbit.com/websocket/v1");
-
-        ws.current.onopen = () => {
-          console.log("WebSocket connected");
-          getMarket();
+    if (ws.current) return;
+  
+    const connectSocket = async () => {
+      const response = await axiosInstance.get("/market");
+      const data: MarketType[] = response.data;
+      const codes: string[] = data.map((row) => row.market);
+  
+      ws.current = new WebSocket("wss://api.upbit.com/websocket/v1");
+  
+      ws.current.onopen = () => {
+        console.log("WebSocket connected");
+  
+        const sendSubscription = () => {
+          if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+            ws.current.send(
+              JSON.stringify([
+                { ticket: "market_list" },
+                { type: "ticker", codes },
+              ])
+            );
+            console.log("Ticker subscription sent.");
+          } else {
+            setTimeout(sendSubscription, 100); // 다시 시도
+          }
         };
-
-        ws.current.onmessage = (event) => {
-          event.data.arrayBuffer().then((buffer: any) => {
-            const decoder = new TextDecoder();
-            const message = decoder.decode(buffer);
-            const data: SocketTickType = JSON.parse(message);
-
-            // Socket Error
-            // console.log(JSON.parse(message));
-
-            setState((prevState) => {
-              const updatedRows = prevState.rows.map((row) => {
-                if (row.market === data.code) {
-                  return { ...row, ticker: data };
-                }
-                return row;
-              });
-              return { ...prevState, rows: updatedRows };
-            });
+  
+        sendSubscription();
+      };
+  
+      ws.current.onmessage = (event) => {
+        event.data.arrayBuffer().then((buffer: any) => {
+          const decoder = new TextDecoder();
+          const message = decoder.decode(buffer);
+          const data: SocketTickType = JSON.parse(message);
+  
+          setState((prev) => {
+            const updatedRows = prev.rows.map((row) =>
+              row.market === data.code ? { ...row, ticker: data } : row
+            );
+            return { ...prev, rows: updatedRows };
           });
-        };
-
-        ws.current.onerror = (error) => {
-          console.error(error);
-        };
-
-        ws.current.onclose = () => {
-          console.log("WebSocket disconnected");
-        };
-      }
-    }
-
+        });
+      };
+  
+      ws.current.onerror = (e) => {
+        console.error("WebSocket error:", e);
+      };
+  
+      ws.current.onclose = () => {
+        console.log("WebSocket disconnected");
+      };
+    };
+  
+    connectSocket();
+  
     return () => {
-      if (location.pathname !== "/market") {
-        console.log("hi");
+      if (ws.current) {
+        ws.current.close();
+        ws.current = null;
+        console.log("WebSocket closed on unmount");
       }
     };
-  }, [location, state]);
+  }, []);
+  
+  
 
   /**
    * 컴포넌트
@@ -253,26 +273,26 @@ const MarketScreen = () => {
    * 컴포넌트
    */
   const columns: GridColDef<(typeof state.rows)[number]>[] = [
-    {
-      field: "심볼",
-      renderHeader: () => (
-        <strong style={{ color: theme.palette.primary.contrastText }}>
-          심볼
-        </strong>
-      ),
-      width: 90,
-      display: "flex",
-      editable: true,
-      renderCell(params) {
-        return (
-          <Box alignContent={"center"}>
-            <Typography variant="h6">
-              {params.row.market.substring(4)}
-            </Typography>
-          </Box>
-        );
-      },
-    },
+    // {
+    //   field: "심볼",
+    //   renderHeader: () => (
+    //     <strong style={{ color: theme.palette.primary.contrastText }}>
+    //       심볼
+    //     </strong>
+    //   ),
+    //   width: 90,
+    //   display: "flex",
+    //   editable: true,
+    //   renderCell(params) {
+    //     return (
+    //       <Box alignContent={"center"}>
+    //         <Typography variant="h6">
+    //           {params.row.market.substring(4)}
+    //         </Typography>
+    //       </Box>
+    //     );
+    //   },
+    // },
     {
       field: "코인명",
       width: 150,
@@ -449,7 +469,7 @@ const MarketScreen = () => {
       align: "right",
       display: "flex",
       sortable: false,
-      // minWidth: 210,
+      minWidth: 210,
       renderCell(params) {
         return params.row.currency === "" || params.row.ticker === undefined ? (
           <Stack pt={1} pb={1}></Stack>
@@ -567,6 +587,7 @@ const MarketScreen = () => {
       flex: 1,
       type: "string",
       display: "flex",
+      // maxWidth:100,
       editable: false,
       renderCell(params) {
         return (

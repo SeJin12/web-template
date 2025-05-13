@@ -49,6 +49,7 @@ const SettingScreen = () => {
     BID_UNDER_TICK: 0,
     ASK_PROFIT_PER: 0,
     ASK_OVER_TICK: 0,
+    DROP_PER:0
   });
 
   /**
@@ -209,6 +210,9 @@ const SettingScreen = () => {
           <Stack display={"flex"} flexDirection={"row"} gap={5} mb={5}>
             {renderTextField("매수 금액", "BID_PRICE")}
             {renderTextField("매수 아래로 틱 (현재가 기준)", "BID_UNDER_TICK")}
+          </Stack>
+          <Stack display={"flex"} flexDirection={"row"} gap={5} mb={5}>
+            {renderTextField("하락 매수 퍼센트", "DROP_PER")}
           </Stack>
         </Box>
         <Box flex={1}>

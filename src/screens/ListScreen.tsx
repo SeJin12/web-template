@@ -84,7 +84,7 @@ const ListScreen = () => {
     dayjs(
       new Date().getFullYear() +
         "-" +
-        String(new Date().getMonth() + 1).padStart(2, "0") +
+        String(new Date().getMonth()).padStart(2, "0") +
         "-01"
     )
   );
